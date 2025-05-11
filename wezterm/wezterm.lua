@@ -8,7 +8,8 @@ local default_prog = {}
 -- 设置SHELL终端
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
 	-- windows下启用powershell
-	local pwsh_path = "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+	local powershell_path = "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+	local pwsh_path = "C:/Program Files/PowerShell/7/pwsh.exe"
 	--term = '' Set to empty so FZF works on windows
 	table.insert(launch_menu, {
 		label = "PowerShell",
@@ -27,7 +28,10 @@ wezterm.on("gui-startup", function(cmd)
 	-- window:gui_window():maximize()
 end)
 
-config.font = wezterm.font("CodeNewRoman Nerd Font Mono") --设置默认字体
+-- config.font = wezterm.font("CodeNewRoman Nerd Font Mono") --设置默认字体
+
+config.font = wezterm.font_with_fallback({ "CodeNewRoman Nerd Font Mono", "LXGW WenKai" }) --设置默认字体
+
 config.font_size = 12
 
 config.default_prog = default_prog
