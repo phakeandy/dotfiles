@@ -129,9 +129,4 @@ if [ -f /etc/zsh_command_not_found ]; then
     . /etc/zsh_command_not_found
 fi
 
-SHELL_CONFIG_HOME="$HOME/.local/config/shell"
-
-# Prompt
-[ -f "$SHELL_CONFIG_HOME/prompt/common.sh"] && \. "$SHELL_CONFIG_HOME/prompt/common.sh"
-
 export EDITOR="nvim"
