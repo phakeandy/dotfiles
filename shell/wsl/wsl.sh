@@ -2,6 +2,8 @@
 
 # Usage: `foo | clip`
 alias clip="iconv -f utf-8 -t GB18030 | clip.exe"
+alias open="xdg-open"
+alias code="$(dirname $(readlink -f "$0"))/code-open-wrapper.sh"
 
 # Functions for wsl
 
