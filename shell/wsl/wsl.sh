@@ -4,6 +4,7 @@
 alias clip="iconv -f utf-8 -t GB18030 | clip.exe"
 alias open="xdg-open"
 alias code="$(dirname $(readlink -f "$0"))/code-open-wrapper.sh"
+alias idea="/mnt/c/Program\ Files/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 2024.3.1.1/bin/idea64.exe"
 
 # Functions for wsl
 
