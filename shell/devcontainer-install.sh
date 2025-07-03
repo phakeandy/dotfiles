@@ -1,3 +1,6 @@
+# 获取脚本所在目录的绝对路径
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # Check if zsh is installed and do nothing if not
 if ! command -v zsh >/dev/null 2>&1; then
   echo "zsh is not installed. Please install zsh and rerun this script."
@@ -12,6 +15,7 @@ if [ -d "$HOME/.oh-my-zsh" ]; then
   zsh -c 'git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions'
   zsh -c 'git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting'
   sed -i 's/^plugins=(.*)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
+  cat "${SCRIPT_DIR}/alias/git.sh" >> ~/.zshrc
   source ./alias/git.sh
 else
   echo "Oh My Zsh 未安装"
