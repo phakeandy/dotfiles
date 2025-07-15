@@ -1,5 +1,15 @@
 # Git Alias for zsh
 
+function _print_git_alias() { 
+  alias | grep 'git' \
+    | sed "s/^\([^=]*\)=\(.*\)/\1 => \2/" \
+    | sed "s/['|\']//g" \
+    | sort \
+    | { [[ -n $1 ]] && command grep -i -- "$1" || cat; }
+  }
+
+alias gal=_print_git_alias
+
 # Aliases
 alias g='git'
 compdef g=git

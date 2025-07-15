@@ -12,8 +12,12 @@ else
 fi
 
 [[ -f "${SCRIPT_DIR}/prompt/common.sh" ]] && source "${SCRIPT_DIR}/prompt/common.sh"
+[[ -f "${SCRIPT_DIR}/alias/docker.sh" ]] && source "${SCRIPT_DIR}/alias/docker.sh"
 
+# WSL
 if [[ -f "/proc/sys/fs/binfmt_misc/WSLInterop" ]]; then
-  # WSL
   [[ -f "${SCRIPT_DIR}/wsl/wsl.sh" ]] && source "${SCRIPT_DIR}/wsl/wsl.sh"
 fi
+
+# API key
+[[ -f "$HOME/.apikey" ]] && source "$HOME/.apikey"
