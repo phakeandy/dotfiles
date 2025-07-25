@@ -16,3 +16,5 @@ else
   code --file-uri "vscode-remote://wsl+${distro_name}${full_path}"
   code "$@"
 fi
+
+alias code="$(dirname $(readlink -f "$0"))/$0"
