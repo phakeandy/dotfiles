@@ -17,9 +17,9 @@ if [ -n "$BASH_VERSION" ]; then
 else
   if [ "$UID" -eq 0 ]; then
     # Root user prompt - only path is colored
-    export PROMPT=$'\n%F{red}┌─[%n@%m]%f-%F{red}[$(_fish_collapsed_pwd)]%f\n%F{red}└─$ %f'
+    export PROMPT=$'%F{red}┌─[%n@%m]%f-%F{red}[$(_fish_collapsed_pwd)]%f\n%F{red}└─$ %f'
   else
     # Regular user prompt - only path is colored
-    export PROMPT=$'\n┌─[%n@%m]-%F{green}[$(_fish_collapsed_pwd)]%f\n└─$ '
+    export PROMPT=$'┌─[%n@%m]-%F{green}[$(_fish_collapsed_pwd)]%f\n└─$ '
   fi
 fi
