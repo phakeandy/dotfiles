@@ -1,23 +1,36 @@
-#!/bin/bash
-
-function _code_open_wrapper {
-  # 没有参数时直接调用原始code命令
+function code {
+  # 没有参数时直接调用原生命令
   if [ $# -eq 0 ]; then
-    code
-    exit 0
+    command code
+    return $?
   fi
 
-  local full_path=$(realpath "$1")
   local distro_name=${WSL_DISTRO_NAME:-FedoraLinux-42}
+  local args=()
+  local convert_done=false
 
-  # 检查第一个参数是否是目录
-  if [ -d "$1" ]; then
-    code --folder-uri "vscode-remote://wsl+${distro_name}${full_path}"
-  else
-    code --file-uri "vscode-remote://wsl+${distro_name}${full_path}"
-    code "$@"
-  fi
+  # 遍历所有参数
+  for arg in "$@"; do
+    # 如果尚未转换且参数是存在的文件/目录
+    if ! $convert_done && [ -e "$arg" ]; then
+      convert_done=true
+      local full_path=$(realpath "$arg")
+      if [ -d "$arg" ]; then
+        args+=(--folder-uri "vscode-remote://wsl+${distro_name}${full_path}")
+      else
+        args+=(--file-uri "vscode-remote://wsl+${distro_name}${full_path}")
+      fi
+    else
+      # 其他参数直接传递
+      args+=("$arg")
+    fi
+  done
+
+  # 调用 VS Code
+  command code "${args[@]}"
 }
 
-
-alias code=_code_open_wrapper
+# 保持原有的别名和补全设置
+if [ -n "$ZSH_VERSION" ]; then
+  compdef code=code
+fi
