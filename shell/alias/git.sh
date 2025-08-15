@@ -8,76 +8,46 @@ function _print_git_alias() {
     | { [[ -n $1 ]] && command grep -i -- "$1" || cat; }
   }
 
-alias gal=_print_git_alias
+alias galias=_print_git_alias
 
-# Aliases
-alias g='git'
-compdef g=git
+### Aliases ###
+
+# status
 alias gst='git status'
 compdef _git gst=git-status
-# alias gl='git pull'
-# compdef _git gl=git-pull
-# alias gup='git fetch && git rebase'
-# compdef _git gup=git-fetch
-# alias gp='git push'
-# compdef _git gp=git-push
+alias gss='git status -s'
+compdef _git gss=git-status
+
+# diff
 gdv() { git diff -w "$@" | view - }
 compdef _git gdv=git-diff
+
+# commit
 alias gc='git commit -v'
 compdef _git gc=git-commit
+alias gcm='git commit -v'
+compdef _git gcm=git-commit
 alias gca='git commit -v -a'
 compdef _git gca=git-commit
+
+# checkout
 alias gco='git checkout'
 compdef _git gco=git-checkout
-# alias gcm='git checkout master'
+
 alias gb='git branch'
 compdef _git gb=git-branch
 alias gba='git branch -a'
 compdef _git gba=git-branch
-# alias gcount='git shortlog -sn'
-# compdef gcount=git
-# alias gcp='git cherry-pick'
-# compdef _git gcp=git-cherry-pick
-alias glg='git log --stat --max-count=5'
+
+# log
+alias glg='git log --oneline --graph'
+alias glgs='git log --stat --max-count=5'
 compdef _git glg=git-log
 alias glgg='git log --graph --max-count=5'
 compdef _git glgg=git-log
-alias gss='git status -s'
-compdef _git gss=git-status
+
+# add
 alias ga='git add'
 compdef _git ga=git-add
 alias gaa='git add --all'
-# alias gm='git merge'
-# compdef _git gm=git-merge
-# alias grh='git reset HEAD'
-# alias grhh='git reset HEAD --hard'
-
-# Git and svn mix
-# alias git-svn-dcommit-push='git svn dcommit && git push github master:svntrunk'
-# compdef git-svn-dcommit-push=git
-
-# alias gsr='git svn rebase'
-# alias gsd='git svn dcommit'
-#
-# Will return the current branch name
-# Usage example: git pull origin $(current_branch)
-
-# function current_branch() {
-#   ref=$(git branch --show-current 2> /dev/null) || return
-#   echo ${ref}
-# }
-
-# function current_repository() {
-
-#   ref=$(git symbolic-ref HEAD 2> /dev/null) || return
-#   echo $(git remote -v | cut -d':' -f 2)
-# }
-
-# # these aliases take advantage of the previous function
-# alias ggpull='git pull origin $(current_branch)'
-# compdef ggpull=git
-# alias ggpush='git push origin $(current_branch)'
-# compdef ggpush=git
-# alias ggpnp='git pull origin $(current_branch) && git push origin $(current_branch)'
-# compdef ggpnp=git
 
