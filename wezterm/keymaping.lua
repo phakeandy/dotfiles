@@ -22,6 +22,8 @@ local keys = {
 		mods = "CTRL|SHIFT",
 		action = require("wezterm").action.DisableDefaultAssignment,
 	},
+	{ mods = "", key = "Home", action = wezterm.action({ SendString = "\001" }) },
+	{ mods = "", key = "End", action = wezterm.action({ SendString = "\005" }) },
 }
 
 local mouse_bindings = {

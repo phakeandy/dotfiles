@@ -28,8 +28,6 @@ wezterm.on("gui-startup", function(cmd)
 	-- window:gui_window():maximize()
 end)
 
--- config.font = wezterm.font("CodeNewRoman Nerd Font Mono") --设置默认字体
-
 config.font = wezterm.font_with_fallback({ "CodeNewRoman Nerd Font Mono", "LXGW WenKai" }) --设置默认字体
 
 config.font_size = 12
@@ -55,7 +53,7 @@ config.initial_rows = 40
 config.initial_cols = 150
 config.adjust_window_size_when_changing_font_size = false
 
-config.window_background_opacity = 0.9 -- 背景不透明度
+config.window_background_opacity = 1.0   -- 背景不透明度
 
 config.color_scheme = "Catppuccin Mocha" -- 设置主题
 config.window_decorations = "RESIZE"
@@ -82,9 +80,9 @@ wezterm.on("update-status", function(window)
 		-- { Foreground = { Color = fg } },
 		-- { Text = LEFT_ARROW },
 		-- Then we draw our text
-		{ Background = { Color = bg } },
-		{ Foreground = { Color = fg } },
-		{ Text = " " .. wezterm.hostname() .. " " },
+		-- { Background = { Color = bg } },
+		-- { Foreground = { Color = fg } },
+		-- { Text = " " .. wezterm.hostname() .. " " },
 	}))
 end)
 
@@ -92,6 +90,8 @@ end)
 config.keys = require("keymaping").keys
 
 config.mouse_bindings = require("keymaping").mouse_bindings
+
+-- config.enable_ssh_agent = false
 
 return config
 
