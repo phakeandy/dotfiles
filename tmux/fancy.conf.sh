@@ -21,9 +21,9 @@ set-option -a terminal-features 'xterm-256color:RGB'
 #############################################################
 
 # 窗口编号从1开始 (更符合日常习惯)
-#set -g base-index 1              # 窗口起始编号
-#set -g pane-base-index 1         # 窗格起始编号
-#set -g renumber-windows on       # 自动重排窗口编号
+set -g base-index 1              # 窗口起始编号
+set -g pane-base-index 1         # 窗格起始编号
+set -g renumber-windows on       # 自动重排窗口编号
 
 # 新窗口/窗格在当前路径打开
 bind c new-window -c "#{pane_current_path}"        # 创建新窗口
@@ -40,11 +40,11 @@ unbind r
 bind r source-file ~/.tmux.conf \; display "配置已重载!"
 
 # Vim式窗格导航
-unbind-key j; unbind-key k; unbind-key l; unbind-key h
-bind-key h select-pane -L  # 向左移动
-bind-key j select-pane -D  # 向下移动
-bind-key k select-pane -U  # 向上移动
-bind-key l select-pane -R  # 向右移动
+#unbind-key j; unbind-key k; unbind-key l; unbind-key h
+#bind-key h select-pane -L  # 向左移动
+#bind-key j select-pane -D  # 向下移动
+#bind-key k select-pane -U  # 向上移动
+#bind-key l select-pane -R  # 向右移动
 
 # 模式键位设置
 set-window-option -g mode-keys vi        # 复制模式使用vim键位

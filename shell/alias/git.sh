@@ -27,7 +27,7 @@ alias gc='git commit -v'
 compdef _git gc=git-commit
 alias gcm='git commit -v'
 compdef _git gcm=git-commit
-alias gca='git commit -v -a'
+alias gcma='git commit -v -a'
 compdef _git gca=git-commit
 
 # checkout

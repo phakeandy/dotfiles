@@ -1,6 +1,6 @@
 # Tmux Config Usage
 
-if need tpm:
+If need tpm:
 
 ```shell
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm # install tpm
