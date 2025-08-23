@@ -19,4 +19,5 @@ bind % split-window -h -c "#{pane_current_path}"
 
 bind -T copy-mode-vi v send -X begin-selection
 bind -T copy-mode-vi y send -X copy-selection-and-cancel
+bind -T copy-mode-vi Y send -X copy-end-of-line-and-cancel
 bind -T copy-mode-vi C-c send -X clear-selection
