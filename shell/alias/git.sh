@@ -38,6 +38,9 @@ alias gb='git branch'
 compdef _git gb=git-branch
 alias gba='git branch -a'
 compdef _git gba=git-branch
+alias gbd='git branch -d'
+compdef _git gbd=git-branch
+
 
 # log
 alias glg='git log --oneline --graph'
