@@ -56,10 +56,6 @@ xterm*|rxvt*|Eterm|aterm|kterm|gnome*|alacritty)
     ;;
 esac
 
-# 启用语法高亮
-if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-    . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
 
 
 precmd() {
@@ -117,6 +113,15 @@ alias ll='ls -l'
 alias la='ls -A'
 alias l='ls -CF'
 
+# 启用 Debian 系的 command-not-found
+# Fedora 需要 `sudo dnf install PackageKit-command-not-found`
+if [ -f /etc/zsh_command_not_found ]; then
+    . /etc/zsh_command_not_found
+fi
+
+
+### PLAGINS ###
+
 # enable auto-suggestions based on the history
 if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -124,9 +129,11 @@ if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'
 fi
 
-# enable command-not-found if installed
-if [ -f /etc/zsh_command_not_found ]; then
-    . /etc/zsh_command_not_found
+
+
+# 启用语法高亮
+if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 
 # User specific environment
