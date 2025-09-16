@@ -34,13 +34,13 @@ compdef _git gca=git-commit
 alias gco='git checkout'
 compdef _git gco=git-checkout
 
+# brach
 alias gb='git branch'
 compdef _git gb=git-branch
 alias gba='git branch -a'
 compdef _git gba=git-branch
 alias gbd='git branch -d'
 compdef _git gbd=git-branch
-
 
 # log
 alias glg='git log --oneline --graph'
@@ -54,3 +54,5 @@ alias ga='git add'
 compdef _git ga=git-add
 alias gaa='git add --all'
 
+# pull
+alias gp='git fetch -p && git merge --ff-only @{u}'

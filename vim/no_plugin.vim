@@ -6,6 +6,13 @@ set cursorline " 光标所在的当前行高亮
 set number " Show current line number
 set relativenumber " Show relative line numbers
 
+" change the cursor between Normal and Insert modes in Vim
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
+augroup myCmds
+au!
+autocmd VimEnter * silent !echo -ne "\e[2 q"
+augroup END
 
 set list listchars=tab:»\ ,trail:·,precedes:<,extends:> " set list 可以显示 listchars (see :help listchars)
 set showbreak=↪\  " set wrap 后, line break 显示的图标
@@ -13,15 +20,15 @@ set showbreak=↪\  " set wrap 后, line break 显示的图标
 colorscheme retrobox
 set background=dark
 
-
 " ===========
 " Key Mapping
 " ===========
 
-
 let mapleader = " "
-
 
 nnoremap <C-s> :w<CR>
 nnoremap <leader>q :q<CR>
 nnoremap <leader>b :buffers<CR>:b
+
+nnoremap <leader>y "+y
+vnoremap <leader>y "+y

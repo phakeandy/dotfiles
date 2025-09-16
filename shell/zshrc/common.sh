@@ -17,6 +17,9 @@ PROMPT_EOL_MARK=""
 
 # history
 setopt histignorealldups sharehistory
+setopt append_history
+setopt inc_append_history
+setopt share_history
 HISTSIZE=1000
 SAVEHIST=1000
 HISTFILE=~/.zsh_history
@@ -133,7 +136,6 @@ if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     # change suggestion color
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'
 fi
-
 
 
 # 启用语法高亮

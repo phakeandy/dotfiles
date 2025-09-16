@@ -18,13 +18,14 @@ SCRIPT_DIR=$(dirname "$(realpath "$0")") # Get realpath for current file
 
 if [ -n "$BASH_VERSION" ]; then
   # Bash
+  source_if_exists "${SCRIPT_DIR}/prompt/loader.sh"
 else
   # Zsh
   source_if_exists "${SCRIPT_DIR}/zshrc/common.sh"
   source_if_exists "${SCRIPT_DIR}/alias/git.sh"
+  source_if_exists "${SCRIPT_DIR}/prompt/git_branch.zsh"
 fi
 
-source_if_exists "${SCRIPT_DIR}/prompt/loader.sh"
 source_if_exists "${SCRIPT_DIR}/alias/docker.sh"
 
 # WSL
@@ -33,8 +34,5 @@ if [[ -f "/proc/sys/fs/binfmt_misc/WSLInterop" ]]; then
     source_if_exists "$file"
   done
 fi
-
-# API key
-source_if_exists "$HOME/.apikey"
 
 unset -f source_if_exists
