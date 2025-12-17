@@ -27,8 +27,24 @@ set background=dark
 let mapleader = " "
 
 nnoremap <C-s> :w<CR>
+nnoremap <leader>w :w<CR>
 nnoremap <leader>q :q<CR>
 nnoremap <leader>b :buffers<CR>:b
 
 nnoremap <leader>y "+y
 vnoremap <leader>y "+y
+
+" WSL
+let g:clipboard = {
+          \   'name': 'win32yank-wsl',
+          \   'copy': {
+          \      '+': 'win32yank.exe -i --crlf',
+          \      '*': 'win32yank.exe -i --crlf',
+          \    },
+          \   'paste': {
+          \      '+': 'win32yank.exe -o --lf',
+          \      '*': 'win32yank.exe -o --lf',
+          \   },
+          \   'cache_enabled': 0,
+          \ }
+

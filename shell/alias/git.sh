@@ -19,8 +19,8 @@ alias gss='git status -s'
 compdef _git gss=git-status
 
 # diff
-gdv() { git diff -w "$@" | view - }
-compdef _git gdv=git-diff
+alias gdf='git diff -w'
+compdef _git gdf=git-diff
 
 # commit
 alias gc='git commit -v'
@@ -44,9 +44,10 @@ compdef _git gbd=git-branch
 
 # log
 alias glg='git log --oneline --graph'
-alias glgs='git log --stat --max-count=5'
 compdef _git glg=git-log
-alias glgg='git log --graph --max-count=5'
+alias glgs='git log --oneline --stat --max-count=15'
+compdef _git glgs=git-log
+alias glgg='git log --oneline --graph --max-count=15'
 compdef _git glgg=git-log
 
 # add
