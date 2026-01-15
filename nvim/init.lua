@@ -23,7 +23,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 vim.pack.add({
     { src = 'https://github.com/folke/tokyonight.nvim' },
-    { src = 'https://github.com/stevearc/oil.nvim' },
+    { src = 'https://github.com/echasnovski/mini.nvim', name = 'mini.nvim' },
     { src = 'https://github.com/ibhagwan/fzf-lua' },
     { src = 'https://github.com/lewis6991/gitsigns.nvim' },
     { src = "https://github.com/neovim/nvim-lspconfig" },
@@ -31,11 +31,16 @@ vim.pack.add({
     { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
 })
 
-require("oil").setup()
-vim.keymap.set('n', '<leader>e', ':Oil<CR>')
+require('mini.icons').setup()
+require('mini.files').setup({
+  mappings = {
+    go_in_plus = '<CR>'
+  }
+})
+vim.keymap.set('n', '<leader>e', MiniFiles.open)
 
 require("mason").setup()
-vim.lsp.enable({ "lua_ls" })
+vim.lsp.enable({ "lua_ls", "clangd" })
 vim.keymap.set('n', '<leader>lf', vim.lsp.buf.format)
 
 require("fzf-lua").setup("fzf-tmux")
@@ -54,6 +59,8 @@ vim.cmd [[
   set expandtab
   set shiftwidth=4
   set tabstop=4
+  set ignorecase
+  set smartcase
   set softtabstop=4
 ]]
 

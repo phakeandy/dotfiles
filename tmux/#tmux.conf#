@@ -10,7 +10,7 @@ set -g base-index 1
 set -g pane-base-index 1
 set -g renumber-windows on
 
-set -s set-clipboard on # Support OSC52
+set -s set-clipboard external # Support OSC52
 
 #set -g status-position top
 set -g status-style "bg=default"
@@ -39,4 +39,3 @@ bind -n M-k select-pane -U
 bind -n M-l select-pane -R
 
 # https://github.com/Morantron/tmux-fingers
-run-shell ~/.tmux/plugins/tmux-fingers/tmux-fingers.tmux
