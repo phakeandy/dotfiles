@@ -12,24 +12,30 @@ vim.keymap.set({ 'n', 'v' }, '<leader>d', '"+d')
 vim.keymap.set('n', '<leader>d', '"+d')
 vim.keymap.set('n', '<leader>p', '"+p')
 vim.keymap.set({ 'n', 'v' }, 'y', '"+y', { noremap = true, silent = true })
+vim.keymap.set('n', '<space>x', ":.lua<CR>")
+vim.keymap.set('v', '<space>x', ":lua<CR>")
 
 vim.api.nvim_create_autocmd("TextYankPost", {
-    desc = "Highlight when yanking (copying) text",
-    group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
-    callback = function()
-        vim.hl.on_yank()
-    end,
+  desc = "Highlight when yanking (copying) text",
+  group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
+  callback = function()
+    vim.hl.on_yank()
+  end,
 })
 
+vim.o.terminate = true
+
 vim.pack.add({
-    { src = 'https://github.com/folke/tokyonight.nvim' },
-    { src = 'https://github.com/echasnovski/mini.nvim', name = 'mini.nvim' },
-    { src = 'https://github.com/ibhagwan/fzf-lua' },
-    { src = 'https://github.com/lewis6991/gitsigns.nvim' },
-    { src = "https://github.com/neovim/nvim-lspconfig" },
-    { src = "https://github.com/mason-org/mason.nvim" },
-    { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
+  { src = 'https://github.com/vague-theme/vague.nvim' },
+  { src = 'https://github.com/echasnovski/mini.nvim',           name = 'mini.nvim' },
+  { src = 'https://github.com/ibhagwan/fzf-lua' },
+  { src = 'https://github.com/lewis6991/gitsigns.nvim' },
+  { src = "https://github.com/neovim/nvim-lspconfig" },
+  { src = "https://github.com/mason-org/mason.nvim" },
+  { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
 })
+
+vim.cmd [[colorscheme vague]]
 
 require('mini.icons').setup()
 require('mini.files').setup({
