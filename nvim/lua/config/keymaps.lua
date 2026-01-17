@@ -1,0 +1,12 @@
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>') -- Clear highlights on search when pressing <Esc> in normal mode
+vim.keymap.set('n', '<C-s>', '<cmd>w<CR>')
+vim.keymap.set('n', '<leader>w', '<cmd>w<CR>')
+vim.keymap.set('n', '<leader>q', '<cmd>q<CR>')
+vim.keymap.set('n', '<leader><leader>', '<cmd>buffers<CR>:b')
+vim.keymap.set({ 'n', 'v' }, '<leader>y', '"+y')
+vim.keymap.set({ 'n', 'v' }, '<leader>d', '"+d')
+vim.keymap.set('n', '<leader>d', '"+d')
+vim.keymap.set('n', '<leader>p', '"+p')
+vim.keymap.set({ 'n', 'v' }, 'y', '"+y', { silent = true })
+vim.keymap.set('n', '<space>x', "<cmd>.lua<CR>")
+vim.keymap.set('v', '<space>x', "<cmd>lua<CR>")
