@@ -1,6 +1,6 @@
 vim.o.termguicolors = true
 vim.o.list = true
-vim.opt.listchars = { tab = "» ", trail = "·", nbsp = '␣', precedes = "<", extends = ">" }
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣", precedes = "<", extends = ">" }
 
 vim.o.number = true
 vim.o.relativenumber = true
@@ -15,6 +15,7 @@ vim.o.softtabstop = 4
 
 vim.o.ignorecase = true
 vim.o.smartcase = true
+vim.opt.path:append("**")
 -- :set wildoptions=pum
 
 vim.o.winborder = "rounded"
@@ -22,7 +23,6 @@ vim.o.cursorline = true
 vim.o.background = "dark"
 
 vim.diagnostic.config({ virtual_text = true })
-
 
 -- disable netrw
 vim.g.loaded_netrwPlugin = 1

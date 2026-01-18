@@ -1,8 +1,21 @@
 {
   "plugins": {
+    "blink.cmp": {
+      "rev": "b19413d214068f316c78978b08264ed1c41830ec",
+      "src": "https://github.com/saghen/blink.cmp",
+      "version": "1.0.0 - 2.0.0"
+    },
+    "conform.nvim": {
+      "rev": "5ac2bb57a9096f00ca50e1a3c46020d5930319b8",
+      "src": "https://github.com/stevearc/conform.nvim"
+    },
     "cursor-dark.nvim": {
       "rev": "9dfb25b261e972570247e05393b4a1ba4646ae12",
       "src": "https://github.com/ydkulks/cursor-dark.nvim"
+    },
+    "friendly-snippets": {
+      "rev": "572f5660cf05f8cd8834e096d7b4c921ba18e175",
+      "src": "https://github.com/rafamadriz/friendly-snippets"
     },
     "fzf-lua": {
       "rev": "a899e3e33c6c26ffeda5739fb6e7157cfc21ad6f",

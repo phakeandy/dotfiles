@@ -1,7 +1,6 @@
-vim.pack.add {
+vim.pack.add({
   { src = "https://github.com/nvim-lua/plenary.nvim" },
-}
-
+})
 
 local scan = require("plenary.scandir")
 local plugins_dir = vim.fn.stdpath("config") .. "/lua/plugins"
@@ -9,7 +8,7 @@ local plugins_dir = vim.fn.stdpath("config") .. "/lua/plugins"
 -- scandir.scan_dir 直接返回目录下所有匹配的文件路径
 local files = scan.scan_dir(plugins_dir, {
   depth = 1,
-  search_pattern = ".lua"
+  search_pattern = ".lua",
 })
 
 for _, file in ipairs(files) do

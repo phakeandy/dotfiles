@@ -1,5 +1,5 @@
 -- Just use .luarc.json
--- 
+--
 -- return {
 --     settings = {
 --         Lua = {
