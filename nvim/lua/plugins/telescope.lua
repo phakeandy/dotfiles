@@ -1,5 +1,6 @@
 vim.pack.add({
   { src = "https://github.com/nvim-telescope/telescope.nvim" },
+  { src = "https://github.com/nvim-telescope/telescope-ui-select.nvim" },
 })
 
 require("telescope").setup({
@@ -9,8 +10,13 @@ require("telescope").setup({
       initial_mode = "normal",
     },
   },
-  extensions = {},
+  extensions = {
+    ["ui-select"] = {
+      require("telescope.themes").get_dropdown({}),
+    },
+  },
 })
+require("telescope").load_extension("ui-select")
 
 vim.keymap.set(
   "n",
