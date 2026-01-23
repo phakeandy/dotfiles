@@ -1,0 +1,9 @@
+[user]
+        email = whota0@163.com
+        name = phakeandy
+[init]
+        defaultBranch = main
+[pull]
+        ff = only
+[core]
+        editor = nvim
