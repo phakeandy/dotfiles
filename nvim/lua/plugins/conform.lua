@@ -17,3 +17,5 @@ require("conform").setup({
     lsp_format = "fallback",
   },
 })
+
+vim.keymap.set("n", "<M-S-f>", require("conform").format)
