@@ -1,0 +1,32 @@
+# 搜索当前行前缀
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+
+set completion-ignore-case on
+set show-all-if-ambiguous on
+set skip-completed-text on
+set colored-completion-prefix on
+
+# 菜单式循环选择
+"\C-i": menu-complete
+set menu-complete-display-prefix on
+
+set visible-stats on
+set mark-symlinked-directories on
+set print-completions-horizontally on
+
+#set editing-mode vi
+#set show-mode-in-prompt on
+## 进入插入模式时：光标变为竖线 (bar)
+#set vi-ins-mode-string "\e[6 q"
+## 进入命令模式时：光标变为方块 (block)
+#set vi-cmd-mode-string "\e[2 q"
+#
+#$if mode=vi
+#    set keymap vi-insert
+#    "jk": vi-movement-mode
+#
+#    set keymap vi-command
+#    "k": history-search-backward
+#    "j": history-search-forward
+#$endif
