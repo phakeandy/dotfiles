@@ -46,6 +46,10 @@
       "src": "https://github.com/nvim-treesitter/nvim-treesitter",
       "version": "'main'"
     },
+    "oil-git-status.nvim": {
+      "rev": "4b5cf53842c17a09420919e655a6a559da3112d7",
+      "src": "https://github.com/refractalize/oil-git-status.nvim"
+    },
     "oil.nvim": {
       "rev": "01cb3a8ad7d5e8707041edc775af83dbf33838f4",
       "src": "https://github.com/stevearc/oil.nvim"

@@ -16,7 +16,8 @@ vim.o.softtabstop = 4
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.opt.path:append("**")
--- :set wildoptions=pum
+vim.o.wildignore = "*/node_modules/*,*/.git/*,*/.svn/*"
+-- set wildoptions=pum
 
 vim.o.winborder = "rounded"
 vim.o.cursorline = true
