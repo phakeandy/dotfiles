@@ -23,8 +23,16 @@ vim.o.winborder = "rounded"
 vim.o.cursorline = true
 vim.o.background = "dark"
 
+vim.o.completeopt = "menuone,noselect"
 vim.diagnostic.config({ virtual_text = true })
 
 -- disable netrw
 vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrw = 1
+
+-- use system clipboard
+vim.opt.clipboard = "unnamedplus"
+
+vim.opt.foldenable = true
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
