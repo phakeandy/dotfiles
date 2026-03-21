@@ -46,7 +46,9 @@ require("mini.clue").setup({
 		-- `z` key
 		{ mode = { "n", "x" }, keys = "z" },
 	},
-
+	window = {
+		config = { width = "auto" },
+	},
 	clues = {
 		-- Enhance this by adding descriptions for <Leader> mapping groups
 		require("mini.clue").gen_clues.square_brackets(),
@@ -58,3 +60,26 @@ require("mini.clue").setup({
 		require("mini.clue").gen_clues.z(),
 	},
 })
+
+require("mini.ai").setup({
+	custom_textobjects = {
+		-- `ae` and `ie` text objects
+		e = function()
+			local n_lines = vim.fn.line("$")
+			local last_line = vim.fn.getline(n_lines)
+			return {
+				from = { line = 1, col = 1 },
+				to = { line = n_lines, col = math.max(last_line:len(), 1) },
+			}
+		end,
+	},
+})
+-- require("mini.indentscope").setup()
+
+require("mini.completion").setup()
+
+local map_multistep = require("mini.keymap").map_multistep
+map_multistep("i", "<Tab>", { "pmenu_next" })
+map_multistep("i", "<S-Tab>", { "pmenu_prev" })
+map_multistep("i", "<CR>", { "pmenu_accept", "minipairs_cr" })
+map_multistep("i", "<BS>", { "minipairs_bs" })

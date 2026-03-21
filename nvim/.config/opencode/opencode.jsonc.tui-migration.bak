@@ -1,5 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "keybinds": {
+    "editor_open": "<leader>ctrl+e,ctrl+g",
+    "messages_first": "<leader>home",
+    "messages_last": "<leader>end",
+  },
   "mcp": {
     // "zai-mcp-server": {
     //   "type": "local",
@@ -20,16 +25,6 @@
     //   "type": "local",
     //   "command": ["npx", "-y", "@ark-ui/mcp"],
     // },
-
-    "MiniMax": {
-      "type": "local",
-      "command": ["uvx", "minimax-coding-plan-mcp", "-y"],
-      "environment": {
-        "MINIMAX_API_KEY": "sk-cp-g6O0hzWLA5n9R9yLDS00Vp3F3IYpzMwBjBWUCC-DYinYnnRSbSxNqY5gC6jgdFbIIvtR7sTuQVQxsmzQFqimAi75fAowyzliLJ3mUOSPfOocg24AYRoPrho",
-        "MINIMAX_API_HOST": "https://api.minimaxi.com",
-      },
-      "enabled": true,
-    },
   },
   "provider": {
     "myprovider": {

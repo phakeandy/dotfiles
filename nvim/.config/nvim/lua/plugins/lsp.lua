@@ -5,7 +5,17 @@ vim.pack.add({
 
 require("mason").setup()
 
-vim.lsp.enable({ "lua_ls", "clangd", "vtsls", "html-lsp", "gopls", "yaml", "pyright" })
+vim.lsp.enable({
+	"lua_ls",
+	"clangd",
+	"vtsls",
+	"html-lsp",
+	"gopls",
+	"yaml",
+	"pyright",
+	"tailwindcss",
+	"emmet_language_server",
+})
 vim.lsp.inlay_hint.enable(true)
 
 vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format)
