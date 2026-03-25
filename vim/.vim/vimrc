@@ -7,8 +7,10 @@ set visualbell				" 删除烦人的铃声
 set hidden				" 允许在有未保存更改的情况下切换到其他缓冲区
 set hlsearch				" 高亮搜索结果
 
+filetype plugin indent on
+
 set background=dark
-colorscheme lunaperche
+colorscheme my-lunaperche
 
 set directory=~/.vim/swap//
 
@@ -36,7 +38,6 @@ packadd! editorconfig
 packadd! editexisting
 
 inoremap jk <esc>
-nnoremap <esc><esc> <cmd>bd<cr>
 tnoremap <silent> jk <C-\><C-n>
 
 " In vim, use esc to map <m-x>
@@ -48,22 +49,22 @@ nnoremap <esc>l <C-w>l
 let g:mapleader = ' '
 
 " nnoremap <leader>e <cmd>Ex<cr>
+nnoremap <leader>x <cmd>bd<cr>
+vnoremap <leader><leader> "yy/<C-r>y<cr>
 
 call plug#begin()
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
-Plug 'morhetz/gruvbox'
-
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
-
 Plug 'tpope/vim-vinegar'
 call plug#end()
 
 nnoremap <leader>, <cmd>Buffers<cr>
-nnoremap <leader>f <cmd>Files<cr>
-nnoremap <leader><leader> <cmd>FZF<cr>
+nnoremap <leader>f <cmd>GFiles<cr>
+nnoremap <leader><leader> <cmd>Files %:h<cr>
+
 let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
 
 let g:netrw_banner = 0 " Hide the banner

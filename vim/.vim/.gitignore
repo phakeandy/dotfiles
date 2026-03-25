@@ -1,0 +1,12 @@
+# 插件管理器安装目录
+plugged/
+
+# 临时文件
+.netrwhist
+swap/
+*.swp
+*.swo
+*~
+
+# 可能其他临时文件
+.viminfo
