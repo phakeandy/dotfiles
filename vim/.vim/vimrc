@@ -16,13 +16,13 @@ set directory=~/.vim/swap//
 
 set clipboard=unnamedplus
 " WSL clipboard config
-autocmd TextYankPost * call system('win32yank.exe -i --crlf', @")
-function! Paste(mode)
-	let @" = system('win32yank.exe -o --lf')
-	return a:mode
-endfunction
-map <expr> p Paste('p')
-map <expr> P Paste('P')
+" autocmd TextYankPost * call system('win32yank.exe -i --crlf', @")
+" function! Paste(mode)
+" 	let @" = system('win32yank.exe -o --lf')
+" 	return a:mode
+" endfunction
+" map <expr> p Paste('p')
+" map <expr> P Paste('P')
 nnoremap c "_c
 nnoremap Y y$
 
@@ -50,6 +50,7 @@ let g:mapleader = ' '
 
 " nnoremap <leader>e <cmd>Ex<cr>
 nnoremap <leader>x <cmd>bd<cr>
+nnoremap <leader>X <cmd>bd!<cr>
 vnoremap <leader><leader> "yy/<C-r>y<cr>
 
 call plug#begin()
