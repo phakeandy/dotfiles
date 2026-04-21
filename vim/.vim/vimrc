@@ -3,7 +3,7 @@ set list listchars=tab:»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set wrap showbreak=↪\
 set splitbelow
 set ignorecase smartcase
-set visualbell				" 删除烦人的铃声
+set noerrorbells vb t_vb=		" 删除烦人的铃声和闪烁
 set hidden				" 允许在有未保存更改的情况下切换到其他缓冲区
 set hlsearch				" 高亮搜索结果
 
@@ -16,13 +16,13 @@ set directory=~/.vim/swap//
 
 set clipboard=unnamedplus
 " WSL clipboard config
-" autocmd TextYankPost * call system('win32yank.exe -i --crlf', @")
-" function! Paste(mode)
-" 	let @" = system('win32yank.exe -o --lf')
-" 	return a:mode
-" endfunction
-" map <expr> p Paste('p')
-" map <expr> P Paste('P')
+autocmd TextYankPost * call system('win32yank.exe -i --crlf', @")
+function! Paste(mode)
+	let @" = system('win32yank.exe -o --lf')
+	return a:mode
+endfunction
+map <expr> p Paste('p')
+map <expr> P Paste('P')
 nnoremap c "_c
 nnoremap Y y$
 
@@ -61,6 +61,9 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-vinegar'
 call plug#end()
+
+let g:fzf_vim = {}
+" let g:fzf_vim.preview_window = ['down,50%', 'ctrl-/']
 
 nnoremap <leader>, <cmd>Buffers<cr>
 nnoremap <leader>f <cmd>GFiles<cr>
