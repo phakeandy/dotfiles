@@ -16,8 +16,10 @@ do
   nmap('H', '<cmd>bp<cr>')
   nmap('L', '<cmd>bn<cr>')
   nmap('<leader>d', '<cmd>bd<cr>')
-  nmap('<c-d>', '<cmd>bd<cr>')
+
   map({ 'i', 'c' }, 'jk', '<esc>')
+  map({ 'i', 'c' }, 'fj', '<esc>')
+  map({ 'i', 'c' }, 'jf', '<esc>')
 
   map({ 't', 'i' }, '<A-h>', '<C-\\><C-n><C-w>h')
   map({ 't', 'i' }, '<A-j>', '<C-\\><C-n><C-w>j')
@@ -34,9 +36,17 @@ do
   vim.opt.relativenumber = true
   vim.opt.clipboard = 'unnamedplus'
   vim.opt.foldmethod = 'marker'
+  vim.o.wrap = true
+
   require('vim._core.ui2').enable()
   vim.cmd('packadd! nohlsearch')
   vim.cmd('packadd! matchit')
+  vim.opt.path:append('**') -- set for :find
+  vim.o.wildignore = '*/node_modules/*,*/.git/*,*/.svn/*'
+
+  -- disable netrw
+  vim.g.loaded_netrwPlugin = 1
+  vim.g.loaded_netrw = 1
 end
 
 do
@@ -80,12 +90,12 @@ vim.pack.add({
   'https://github.com/mikavilpas/yazi.nvim',
   'https://github.com/nvim-lua/plenary.nvim',
   'https://github.com/ibhagwan/fzf-lua',
-  -- 'https://github.com/vague-theme/vague.nvim',
+  'https://github.com/vague-theme/vague.nvim',
   'https://github.com/nvim-mini/mini.nvim',
   'https://github.com/stevearc/conform.nvim',
 }, { confirm = false })
 
-vim.cmd.colorscheme('catppuccin')
+-- vim.cmd.colorscheme('vague')
 -- require('vague').setup({ italic = false })
 require('yazi').setup({
   open_for_directories = true,
@@ -95,6 +105,7 @@ require('mini.completion').setup()
 vim.keymap.set('i', '<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true })
 vim.o.completeopt = 'menuone,noselect,fuzzy'
 require('mini.git').setup()
+require('mini.pairs').setup()
 require('mini.tabline').setup()
 require('mini.statusline').setup()
 require('mini.diff').setup()
