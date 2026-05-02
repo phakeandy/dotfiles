@@ -1,34 +1,37 @@
+local nmap = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { desc = desc }) end
+local map = vim.keymap.set
+
 do
-  local nmap = function(lhs, rhs, desc)
-    vim.keymap.set('n', lhs, rhs, { desc = desc })
-  end
-  local map = function(mode, lhs, rhs, desc)
-    vim.keymap.set(mode, lhs, rhs, { desc = desc })
-  end
   vim.g.mapleader = ' '
   nmap('c', '"_c')
-
   nmap('<c-p>', '<cmd>FzfLua global<cr>')
   nmap('<leader>,', '<cmd>FzfLua buffers<cr>')
   nmap('<leader>/', '<cmd>FzfLua live_grep<cr>')
 
   nmap('-', function() require('yazi').yazi() end)
+
   nmap('H', '<cmd>bp<cr>')
   nmap('L', '<cmd>bn<cr>')
   nmap('<leader>d', '<cmd>bd<cr>')
+  nmap('<leader>b', ':b')
 
   map({ 'i', 'c' }, 'jk', '<esc>')
-  map({ 'i', 'c' }, 'fj', '<esc>')
-  map({ 'i', 'c' }, 'jf', '<esc>')
 
-  map({ 't', 'i' }, '<A-h>', '<C-\\><C-n><C-w>h')
-  map({ 't', 'i' }, '<A-j>', '<C-\\><C-n><C-w>j')
-  map({ 't', 'i' }, '<A-k>', '<C-\\><C-n><C-w>k')
-  map({ 't', 'i' }, '<A-l>', '<C-\\><C-n><C-w>l')
-  nmap('<A-h>', '<C-w>h')
-  nmap('<A-j>', '<C-w>j')
-  nmap('<A-k>', '<C-w>k')
-  nmap('<A-l>', '<C-w>l')
+  -- Window Management {{{
+  -- map({ 't', 'i' }, '<A-h>', '<C-\\><C-n><C-w>h')
+  -- map({ 't', 'i' }, '<A-j>', '<C-\\><C-n><C-w>j')
+  -- map({ 't', 'i' }, '<A-k>', '<C-\\><C-n><C-w>k')
+  -- map({ 't', 'i' }, '<A-l>', '<C-\\><C-n><C-w>l')
+  nmap('<M-h>', '<C-w>h')
+  nmap('<M-j>', '<C-w>j')
+  nmap('<M-k>', '<C-w>k')
+  nmap('<M-l>', '<C-w>l')
+  nmap('<M-o>', '<C-w>w')
+  nmap('<M-left>', ':vertical resize -5<CR>')
+  nmap('<M-right>', ':vertical resize +5<CR>')
+  nmap('<M-up>', ':resize +5<CR>')
+  nmap('<M-down>', ':resize -5<CR>')
+  -- }}}
 end
 
 do
@@ -36,6 +39,7 @@ do
   vim.opt.relativenumber = true
   vim.opt.clipboard = 'unnamedplus'
   vim.opt.foldmethod = 'marker'
+  vim.opt.list = false
   vim.o.wrap = true
 
   require('vim._core.ui2').enable()
@@ -57,6 +61,7 @@ do
     clangd = {},
     rust_analyzer = {},
     gopls = {},
+    vtsls = {},
   }
 
   vim.pack.add({
@@ -79,7 +84,7 @@ do
 
       on_attach = function(_, bufnr)
 	-- stylua: ignore start
-        vim.keymap.set( 'n', '<leader>ca', vim.lsp.buf.code_action, { buffer = bufnr, desc = 'vim.lsp.buf.code_action()' })
+        map('n', '<leader>ca', vim.lsp.buf.code_action, { buffer = bufnr, desc = 'vim.lsp.buf.code_action()' })
         -- stylua: ignore end
       end,
     })
@@ -93,23 +98,28 @@ vim.pack.add({
   'https://github.com/vague-theme/vague.nvim',
   'https://github.com/nvim-mini/mini.nvim',
   'https://github.com/stevearc/conform.nvim',
+  'https://github.com/Exafunction/windsurf.nvim',
+  'https://github.com/tpope/vim-fugitive',
+  'https://github.com/keaising/im-select.nvim',
 }, { confirm = false })
 
 -- vim.cmd.colorscheme('vague')
 -- require('vague').setup({ italic = false })
-require('yazi').setup({
-  open_for_directories = true,
-})
+require('yazi').setup({ open_for_directories = true })
 
-require('mini.completion').setup()
-vim.keymap.set('i', '<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true })
+require('im_select').setup()
+
+-- require('mini.completion').setup()
+map('i', '<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true })
 vim.o.completeopt = 'menuone,noselect,fuzzy'
 require('mini.git').setup()
-require('mini.pairs').setup()
+-- require('mini.pairs').setup()
 require('mini.tabline').setup()
 require('mini.statusline').setup()
 require('mini.diff').setup()
 require('mini.basics').setup({ options = { basic = true, extra_ui = true } })
+require('mini.surround').setup()
+
 -- mini.clue {{{
 local miniclue = require('mini.clue')
 miniclue.setup({
@@ -159,6 +169,7 @@ miniclue.setup({
 -- }}}
 
 do
+  -- Format
   local prettier = { 'prettierd', 'prettier', stop_after_first = true }
   require('conform').setup({
     formatters_by_ft = {
@@ -172,7 +183,7 @@ do
       jsonc = prettier,
       html = prettier,
       css = prettier,
-      markdown = prettier,
+      -- markdown = prettier,
     },
   })
 
@@ -182,6 +193,7 @@ do
   })
 
   vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+  vim.diagnostic.config({ virtual_text = true })
 end
 
 require('fzf-lua').setup({
@@ -193,3 +205,26 @@ require('fzf-lua').setup({
     },
   },
 })
+
+-- Codeium {{{
+require('codeium').setup({
+  enable_cmp_source = false,
+  virtual_text = {
+    enabled = true,
+    key_bindings = {
+      -- Accept the current completion.
+      accept = '<Tab>',
+      -- Accept the next word.
+      accept_word = '<m-l>',
+      -- Accept the next line.
+      accept_line = false,
+      -- Clear the virtual text.
+      clear = '<c-l>',
+      -- Cycle to the next completion.
+      next = '<M-]>',
+      -- Cycle to the previous completion.
+      prev = '<M-[>',
+    },
+  },
+})
+-- }}}

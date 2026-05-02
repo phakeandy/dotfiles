@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+	files=$(timeout 1 find . -type f | fzy)
+	[ -n "$files" ] && $EDITOR "$files"
+else 
+        $EDITOR "$@"
+fi

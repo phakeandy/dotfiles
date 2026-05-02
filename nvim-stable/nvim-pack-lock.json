@@ -1,5 +1,9 @@
 {
   "plugins": {
+    "better-escape.nvim": {
+      "rev": "3f4bc0b326606264ff75967f59091b5ddada0554",
+      "src": "https://github.com/max397574/better-escape.nvim"
+    },
     "blink.cmp": {
       "rev": "b19413d214068f316c78978b08264ed1c41830ec",
       "src": "https://github.com/saghen/blink.cmp"
@@ -28,9 +32,17 @@
       "rev": "8c4a9f621ec7cdc30411a1f3b6d5eebb12b469dc",
       "src": "https://github.com/nvimtools/hydra.nvim"
     },
+    "im-select.nvim": {
+      "rev": "963a4e9d528ef8a8d328eeff690593b0146d30e2",
+      "src": "https://github.com/keaising/im-select.nvim"
+    },
     "jieba.nvim": {
       "rev": "d116ca2fc7cfbd1b1d6c19c516e8ad194ec8706a",
       "src": "https://github.com/neo451/jieba.nvim"
+    },
+    "jk.vim": {
+      "rev": "6470e12a1b44a7e6daf66b3adccc384f0f710a86",
+      "src": "https://github.com/sefeng211/jk.vim"
     },
     "marks.nvim": {
       "rev": "f353e8c08c50f39e99a9ed474172df7eddd89b72",
@@ -120,9 +132,17 @@
       "rev": "8751181a1aa431b4e8983b0a183afef5cbc08381",
       "src": "https://github.com/vague-theme/vague.nvim"
     },
+    "vim-fugitive": {
+      "rev": "3b753cf8c6a4dcde6edee8827d464ba9b8c4a6f0",
+      "src": "https://github.com/tpope/vim-fugitive"
+    },
     "vimtex": {
       "rev": "fcd1533862cc3153c203399964065bc835f6919a",
       "src": "https://github.com/lervag/vimtex"
+    },
+    "windsurf.nvim": {
+      "rev": "821b570b526dbb05b57aa4ded578b709a704a38a",
+      "src": "https://github.com/Exafunction/windsurf.nvim"
     },
     "yazi.nvim": {
       "rev": "a4c292e0cb2647773e91ae29eeb87dd26f33c6b9",

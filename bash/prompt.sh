@@ -1,4 +1,7 @@
-# 1. 基础环境准备 (Git 提示符)
+# 效果展示
+# [1] ~/dotfiles main *+ $
+#
+# 基础环境准备 (Git 提示符)
 if [ -f /usr/lib/git-core/git-sh-prompt ]; then
     . /usr/lib/git-core/git-sh-prompt
 fi
