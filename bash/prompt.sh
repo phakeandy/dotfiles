@@ -6,7 +6,7 @@ if [ -f /usr/lib/git-core/git-sh-prompt ]; then
     . /usr/lib/git-core/git-sh-prompt
 fi
 
-export PROMPT_DIRTRIM=3
+export PROMPT_DIRTRIM=2
 export GIT_PS1_SHOWDIRTYSTATE=true
 
 _update_bash_prompt() {
@@ -27,7 +27,7 @@ _update_bash_prompt() {
     local reset='\[\033[00m\]'
     local title='\[\e]0;\u: \w\a\]'
 
-    PS1="${title}${debian_chroot:+($debian_chroot)}${green}${job_str}${reset}${blue}\w${reset}${red}${git_info}${reset} \$ "
+    PS1="${title}${debian_chroot:+($debian_chroot)}${green}${job_str}${reset}${blue}\W${reset}${red}${git_info}${reset} \$ "
 }
 
 PROMPT_COMMAND="_update_bash_prompt"

@@ -4,18 +4,13 @@ local map = vim.keymap.set
 do
   vim.g.mapleader = ' '
   nmap('c', '"_c')
-  nmap('<c-p>', '<cmd>FzfLua global<cr>')
-  nmap('<leader>,', '<cmd>FzfLua buffers<cr>')
-  nmap('<leader>/', '<cmd>FzfLua live_grep<cr>')
-
   nmap('-', function() require('yazi').yazi() end)
 
-  nmap('H', '<cmd>bp<cr>')
-  nmap('L', '<cmd>bn<cr>')
   nmap('<leader>d', '<cmd>bd<cr>')
   nmap('<leader>b', ':b')
 
   map({ 'i', 'c' }, 'jk', '<esc>')
+  map('t', 'jk', '<C-\\><C-n>')
 
   -- Window Management {{{
   -- map({ 't', 'i' }, '<A-h>', '<C-\\><C-n><C-w>h')
@@ -95,7 +90,6 @@ vim.pack.add({
   'https://github.com/mikavilpas/yazi.nvim',
   'https://github.com/nvim-lua/plenary.nvim',
   'https://github.com/ibhagwan/fzf-lua',
-  'https://github.com/vague-theme/vague.nvim',
   'https://github.com/nvim-mini/mini.nvim',
   'https://github.com/stevearc/conform.nvim',
   'https://github.com/Exafunction/windsurf.nvim',
@@ -103,8 +97,7 @@ vim.pack.add({
   'https://github.com/keaising/im-select.nvim',
 }, { confirm = false })
 
--- vim.cmd.colorscheme('vague')
--- require('vague').setup({ italic = false })
+vim.cmd.colorscheme('my-lunaperche')
 require('yazi').setup({ open_for_directories = true })
 
 require('im_select').setup()
@@ -114,7 +107,7 @@ map('i', '<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true })
 vim.o.completeopt = 'menuone,noselect,fuzzy'
 require('mini.git').setup()
 -- require('mini.pairs').setup()
-require('mini.tabline').setup()
+-- require('mini.tabline').setup()
 require('mini.statusline').setup()
 require('mini.diff').setup()
 require('mini.basics').setup({ options = { basic = true, extra_ui = true } })
@@ -196,15 +189,34 @@ do
   vim.diagnostic.config({ virtual_text = true })
 end
 
-require('fzf-lua').setup({
-  winopts = {
-    fullscreen = true,
-    preview = {
-      layout = 'vertical',
-      vertical = 'up:45%',
+do
+  vim.pack.add({
+    'https://github.com/nvim-telescope/telescope.nvim',
+    'https://github.com/nvim-telescope/telescope-ui-select.nvim',
+
+    -- needs run `cd /home/phakeandy/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/ && make`
+    'https://github.com/nvim-telescope/telescope-fzf-native.nvim',
+  }, { confirm = false })
+
+  require('telescope').setup({
+    extensions = {
+      ['ui-select'] = { require('telescope.themes').get_dropdown({}) },
     },
-  },
-})
+  })
+  require('telescope').load_extension('ui-select')
+  require('telescope').load_extension('fzf')
+
+  local builtin = require('telescope.builtin')
+
+  -- stylua: ignore start
+  nmap("<leader>f", builtin.find_files, "Telescope find files")
+  nmap("<leader>sc", function() builtin.find_files({ cwd = vim.fn.stdpath("config") }) end, "Telescope find neovim configuraition files")
+  nmap("<leader>sh", builtin.help_tags, "Telescope help tags")
+  nmap("<leader>sg", builtin.live_grep, "Telescope live grep" )
+  nmap("<leader>,", builtin.buffers, "Telescope buffers")
+  nmap("<leader><leader>", builtin.builtin, "Telescope")
+  -- stylua: ignore end
+end
 
 -- Codeium {{{
 require('codeium').setup({

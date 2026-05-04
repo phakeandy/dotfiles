@@ -72,6 +72,10 @@
       "rev": "72225ea9e4443c3f4b9df91d0193e07c4ee8d382",
       "src": "https://github.com/smoka7/multicursors.nvim"
     },
+    "neov-ime.nvim": {
+      "rev": "dbfb6d8cd8da0fa74ecf8ef8984f793910b7f874",
+      "src": "https://github.com/sevenc-nanashi/neov-ime.nvim"
+    },
     "nvim-lspconfig": {
       "rev": "b80f82f59544f0770981b5a6c7d129ca276dab36",
       "src": "https://github.com/neovim/nvim-lspconfig"
