@@ -10,7 +10,7 @@ do
   nmap('<leader>b', ':b')
 
   map({ 'i', 'c' }, 'jk', '<esc>')
-  map('t', 'jk', '<C-\\><C-n>')
+  map('t', '<esc>', '<C-\\><C-n>')
 
   -- Window Management {{{
   -- map({ 't', 'i' }, '<A-h>', '<C-\\><C-n><C-w>h')
@@ -168,6 +168,7 @@ do
     formatters_by_ft = {
       lua = { 'stylua' },
       python = { 'ruff_format' },
+      c = { 'clang-formart' },
       rust = { 'rustfmt', lsp_format = 'fallback' },
       go = { 'goimports', 'gofmt' },
 
