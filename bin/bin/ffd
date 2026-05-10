@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Fuzzy Find Dotfiles files
+
+target=$(find -type f ~/dotfiles | fzy | xargs -I{} realpath  ~/dotfiles/{})
+cd "${target}"
+
