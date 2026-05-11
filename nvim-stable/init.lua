@@ -1,10 +1,21 @@
 local nmap = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { desc = desc }) end
 local map = vim.keymap.set
+local create_autocmd = vim.api.nvim_create_autocmd
 
 do
   vim.g.mapleader = ' '
+  vim.g.maplocalleader = ' '
   nmap('c', '"_c')
-  nmap('-', function() require('yazi').yazi() end)
+  nmap('-', function() require('mini.files').open(vim.api.nvim_buf_get_name(0)) end)
+
+  local nmap_zz = function (lhs)
+    vim.keymap.set('n', lhs, lhs .. 'zz')
+  end
+
+  nmap_zz('<c-d>')
+  nmap_zz('<c-u>')
+  nmap_zz('n')
+  nmap_zz('N')
 
   nmap('<leader>d', '<cmd>bd<cr>')
   nmap('<leader>b', ':b')
@@ -30,18 +41,37 @@ do
 end
 
 do
-  vim.opt.number = true
-  vim.opt.relativenumber = true
-  vim.opt.clipboard = 'unnamedplus'
-  vim.opt.foldmethod = 'marker'
-  vim.opt.list = false
+  vim.o.number = true
+  -- vim.o.relativenumber = true
+  vim.o.clipboard = 'unnamedplus'
+  vim.o.smartcase = true
+  vim.o.foldmethod = 'marker'
+  vim.o.cursorline = true
+  vim.o.list = false
   vim.o.wrap = true
+  vim.o.exrc = true
+
+  vim.o.smarttab = true
+  vim.o.smartindent = true
+
+  vim.o.list = true
+  vim.opt.listchars =
+    { tab = '» ', trail = '·', nbsp = '␣', precedes = '<', extends = '>' }
+
+  vim.diagnostic.config({
+    underline = false,
+    virtual_text = false,
+  })
 
   require('vim._core.ui2').enable()
   vim.cmd('packadd! nohlsearch')
   vim.cmd('packadd! matchit')
   vim.opt.path:append('**') -- set for :find
   vim.o.wildignore = '*/node_modules/*,*/.git/*,*/.svn/*'
+
+  create_autocmd({ 'TextYankPost' }, {
+    callback = function() vim.hl.on_yank({ higroup = 'Visual', timeout = 300 }) end,
+  })
 
   -- disable netrw
   vim.g.loaded_netrwPlugin = 1
@@ -78,7 +108,8 @@ do
       settings = config,
 
       on_attach = function(_, bufnr)
-	-- stylua: ignore start
+        vim.o.signcolumn = 'yes'
+        -- stylua: ignore start
         map('n', '<leader>ca', vim.lsp.buf.code_action, { buffer = bufnr, desc = 'vim.lsp.buf.code_action()' })
         -- stylua: ignore end
       end,
@@ -87,32 +118,65 @@ do
 end
 
 vim.pack.add({
-  'https://github.com/mikavilpas/yazi.nvim',
   'https://github.com/nvim-lua/plenary.nvim',
-  'https://github.com/ibhagwan/fzf-lua',
   'https://github.com/nvim-mini/mini.nvim',
   'https://github.com/stevearc/conform.nvim',
   'https://github.com/Exafunction/windsurf.nvim',
   'https://github.com/tpope/vim-fugitive',
+
+  'https://github.com/L3MON4D3/LuaSnip',
+  'https://github.com/rafamadriz/friendly-snippets',
+
+  'https://github.com/lervag/vimtex',
+
+  -- Improve editer experience plugins
+  'https://github.com/NMAC427/guess-indent.nvim',
   'https://github.com/keaising/im-select.nvim',
+  'https://github.com/folke/flash.nvim',
 }, { confirm = false })
 
 vim.cmd.colorscheme('my-lunaperche')
-require('yazi').setup({ open_for_directories = true })
+-- require('yazi').setup({ open_for_directories = true })
 
 require('im_select').setup()
+require('guess-indent').setup()
 
--- require('mini.completion').setup()
-map('i', '<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true })
-vim.o.completeopt = 'menuone,noselect,fuzzy'
+do
+  vim.o.completeopt = 'menuone,noselect,fuzzy'
+
+  -- require('mini.completion').setup()
+  -- map('i', '<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true })
+
+  -- blink setup {{{
+  vim.pack.add({
+    {
+      src = 'https://github.com/Saghen/blink.cmp',
+      version = vim.version.range('1.*'),
+    },
+  })
+
+  require('blink.cmp').setup({
+    completion = {
+      -- ghost_text = { enabled = true },
+      -- menu = { auto_show = false },
+    },
+    -- keymap = {
+    --   preset = 'super-tab',
+    -- },
+  })
+  -- }}}
+end
+
 require('mini.git').setup()
--- require('mini.pairs').setup()
--- require('mini.tabline').setup()
 require('mini.statusline').setup()
+require('mini.align').setup()
+require('mini.icons').setup()
 require('mini.diff').setup()
-require('mini.basics').setup({ options = { basic = true, extra_ui = true } })
-require('mini.surround').setup()
-
+require('mini.files').setup({
+  mappings = {
+    go_in_plus = '<cr>',
+  },
+})
 -- mini.clue {{{
 local miniclue = require('mini.clue')
 miniclue.setup({
@@ -161,36 +225,33 @@ miniclue.setup({
 })
 -- }}}
 
-do
-  -- Format
-  local prettier = { 'prettierd', 'prettier', stop_after_first = true }
-  require('conform').setup({
-    formatters_by_ft = {
-      lua = { 'stylua' },
-      python = { 'ruff_format' },
-      c = { 'clang-formart' },
-      rust = { 'rustfmt', lsp_format = 'fallback' },
-      go = { 'goimports', 'gofmt' },
+-- Formater {{{
+local prettier = { 'prettierd', 'prettier', stop_after_first = true }
+require('conform').setup({
+  formatters_by_ft = {
+    lua = { 'stylua' },
+    python = { 'ruff_format' },
+    c = { 'clang-formart' },
+    rust = { 'rustfmt', lsp_format = 'fallback' },
+    go = { 'goimports', 'gofmt' },
 
-      javascript = prettier,
-      json = prettier,
-      jsonc = prettier,
-      html = prettier,
-      css = prettier,
-      -- markdown = prettier,
-    },
-  })
+    javascript = prettier,
+    json = prettier,
+    jsonc = prettier,
+    html = prettier,
+    css = prettier,
+    -- markdown = prettier,
+  },
+  format_on_save = function(bufnr)
+    if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
+    return { timeout_ms = 500, lsp_format = 'fallback' }
+  end,
+})
 
-  vim.api.nvim_create_autocmd('BufWritePre', {
-    pattern = '*',
-    callback = function(args) require('conform').format({ bufnr = args.buf }) end,
-  })
+vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+-- }}}
 
-  vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-  vim.diagnostic.config({ virtual_text = true })
-end
-
-do
+-- Telescope {{{
   vim.pack.add({
     'https://github.com/nvim-telescope/telescope.nvim',
     'https://github.com/nvim-telescope/telescope-ui-select.nvim',
@@ -211,33 +272,41 @@ do
 
   -- stylua: ignore start
   nmap("<leader>f", builtin.find_files, "Telescope find files")
+  nmap("<leader>,", builtin.buffers, "Telescope buffers")
   nmap("<leader>sc", function() builtin.find_files({ cwd = vim.fn.stdpath("config") }) end, "Telescope find neovim configuraition files")
   nmap("<leader>sh", builtin.help_tags, "Telescope help tags")
   nmap("<leader>sg", builtin.live_grep, "Telescope live grep" )
-  nmap("<leader>,", builtin.buffers, "Telescope buffers")
-  nmap("<leader><leader>", builtin.builtin, "Telescope")
+  nmap("<leader>st", builtin.builtin, "Telescope")
+
   -- stylua: ignore end
-end
+-- }}}
 
 -- Codeium {{{
-require('codeium').setup({
-  enable_cmp_source = false,
-  virtual_text = {
-    enabled = true,
-    key_bindings = {
-      -- Accept the current completion.
-      accept = '<Tab>',
-      -- Accept the next word.
-      accept_word = '<m-l>',
-      -- Accept the next line.
-      accept_line = false,
-      -- Clear the virtual text.
-      clear = '<c-l>',
-      -- Cycle to the next completion.
-      next = '<M-]>',
-      -- Cycle to the previous completion.
-      prev = '<M-[>',
-    },
-  },
-})
+-- require('codeium').setup({
+--   enable_cmp_source = true,
+--   virtual_text = {
+--     enabled = false,
+--     key_bindings = {
+--       -- Accept the current completion.
+--       accept = '<c-f>',
+--       -- Accept the next word.
+--       -- accept_word = '<c-l>',
+--       -- Accept the next line.
+--       accept_line = '<c-j>',
+--       -- Clear the virtual text.
+--       clear = '<c-k>',
+--       -- Cycle to the next completion.
+--       next = '<M-]>',
+--       -- Cycle to the previous completion.
+--       prev = '<M-[>',
+--     },
+--   },
+-- })
+-- }}}
+
+-- vimtex
+vim.g.vimtex_view_method = "zathura"
+
+-- Snipets {{{
+require("luasnip.loaders.from_vscode").lazy_load()
 -- }}}

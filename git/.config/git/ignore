@@ -1,3 +1,4 @@
 .envrc
 
 **/.claude/settings.local.json
+.nvim.lua
