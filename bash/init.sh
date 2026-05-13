@@ -72,6 +72,7 @@ fi
 ## Source Other File
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases 
 [ -f $HOME/dotfiles/bash/prompt.sh ] && . $HOME/dotfiles/bash/prompt.sh
+[ -f $HOME/dotfiles/bash/scripts/ff.sh ] && . $HOME/dotfiles/bash/scripts/ff.sh
 
 # Source bash-completion file.
 if ! shopt -oq posix; then

@@ -77,6 +77,10 @@
       "rev": "27a3e747a4e603b4121f5759e74020430ec7b7d5",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
+    "minuet-ai.nvim": {
+      "rev": "d38c2f08b024cd455d01e880a47c8165ba78efbd",
+      "src": "https://github.com/milanglacier/minuet-ai.nvim"
+    },
     "multicursor.nvim": {
       "rev": "630dd29dd696bc977cb81d7dd2fa6bb280f60fc4",
       "src": "https://github.com/jake-stewart/multicursor.nvim"

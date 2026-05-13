@@ -4,18 +4,20 @@ local create_autocmd = vim.api.nvim_create_autocmd
 
 do
   vim.g.mapleader = ' '
-  vim.g.maplocalleader = ' '
+  vim.g.maplocalleader = '\\'
   nmap('c', '"_c')
-  nmap('-', function() require('mini.files').open(vim.api.nvim_buf_get_name(0)) end)
+  -- nmap('-', function() require('mini.files').open(vim.api.nvim_buf_get_name(0)) end)
+  nmap('-', '<cmd>Oil<cr>')
 
-  local nmap_zz = function (lhs)
-    vim.keymap.set('n', lhs, lhs .. 'zz')
-  end
+  local nmap_zz = function(lhs) vim.keymap.set('n', lhs, lhs .. 'zz') end
 
   nmap_zz('<c-d>')
   nmap_zz('<c-u>')
   nmap_zz('n')
   nmap_zz('N')
+
+  -- flash
+  map({ 'n', 'x', 'o' }, 's', function() require('flash').jump() end)
 
   nmap('<leader>d', '<cmd>bd<cr>')
   nmap('<leader>b', ':b')
@@ -47,6 +49,8 @@ do
   vim.o.smartcase = true
   vim.o.foldmethod = 'marker'
   vim.o.cursorline = true
+  vim.opt.cmdheight = 0
+  vim.opt.laststatus = 3 -- Global Statusline
   vim.o.list = false
   vim.o.wrap = true
   vim.o.exrc = true
@@ -73,6 +77,13 @@ do
     callback = function() vim.hl.on_yank({ higroup = 'Visual', timeout = 300 }) end,
   })
 
+  -- Make backgroud dark
+  vim.api.nvim_set_hl(
+    0,
+    'Normal',
+    { fg = vim.api.nvim_get_hl(0, { name = 'Normal' }).fg, bg = 'black' }
+  )
+
   -- disable netrw
   vim.g.loaded_netrwPlugin = 1
   vim.g.loaded_netrw = 1
@@ -87,6 +98,7 @@ do
     rust_analyzer = {},
     gopls = {},
     vtsls = {},
+    pylsp = {},
   }
 
   vim.pack.add({
@@ -127,6 +139,9 @@ vim.pack.add({
   'https://github.com/L3MON4D3/LuaSnip',
   'https://github.com/rafamadriz/friendly-snippets',
 
+  'https://github.com/milanglacier/minuet-ai.nvim',
+  'https://github.com/stevearc/oil.nvim',
+
   'https://github.com/lervag/vimtex',
 
   -- Improve editer experience plugins
@@ -135,19 +150,11 @@ vim.pack.add({
   'https://github.com/folke/flash.nvim',
 }, { confirm = false })
 
-vim.cmd.colorscheme('my-lunaperche')
--- require('yazi').setup({ open_for_directories = true })
-
 require('im_select').setup()
 require('guess-indent').setup()
 
 do
   vim.o.completeopt = 'menuone,noselect,fuzzy'
-
-  -- require('mini.completion').setup()
-  -- map('i', '<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true })
-
-  -- blink setup {{{
   vim.pack.add({
     {
       src = 'https://github.com/Saghen/blink.cmp',
@@ -155,16 +162,7 @@ do
     },
   })
 
-  require('blink.cmp').setup({
-    completion = {
-      -- ghost_text = { enabled = true },
-      -- menu = { auto_show = false },
-    },
-    -- keymap = {
-    --   preset = 'super-tab',
-    -- },
-  })
-  -- }}}
+  require('blink.cmp').setup()
 end
 
 require('mini.git').setup()
@@ -230,7 +228,7 @@ local prettier = { 'prettierd', 'prettier', stop_after_first = true }
 require('conform').setup({
   formatters_by_ft = {
     lua = { 'stylua' },
-    python = { 'ruff_format' },
+    python = { 'ruff_organize_imports', 'ruff_format' },
     c = { 'clang-formart' },
     rust = { 'rustfmt', lsp_format = 'fallback' },
     go = { 'goimports', 'gofmt' },
@@ -252,23 +250,23 @@ vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 -- }}}
 
 -- Telescope {{{
-  vim.pack.add({
-    'https://github.com/nvim-telescope/telescope.nvim',
-    'https://github.com/nvim-telescope/telescope-ui-select.nvim',
+vim.pack.add({
+  'https://github.com/nvim-telescope/telescope.nvim',
+  'https://github.com/nvim-telescope/telescope-ui-select.nvim',
 
-    -- needs run `cd /home/phakeandy/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/ && make`
-    'https://github.com/nvim-telescope/telescope-fzf-native.nvim',
-  }, { confirm = false })
+  -- needs run `cd /home/phakeandy/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/ && make`
+  'https://github.com/nvim-telescope/telescope-fzf-native.nvim',
+}, { confirm = false })
 
-  require('telescope').setup({
-    extensions = {
-      ['ui-select'] = { require('telescope.themes').get_dropdown({}) },
-    },
-  })
-  require('telescope').load_extension('ui-select')
-  require('telescope').load_extension('fzf')
+require('telescope').setup({
+  extensions = {
+    ['ui-select'] = { require('telescope.themes').get_dropdown({}) },
+  },
+})
+require('telescope').load_extension('ui-select')
+require('telescope').load_extension('fzf')
 
-  local builtin = require('telescope.builtin')
+local builtin = require('telescope.builtin')
 
   -- stylua: ignore start
   nmap("<leader>f", builtin.find_files, "Telescope find files")
@@ -278,35 +276,83 @@ vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
   nmap("<leader>sg", builtin.live_grep, "Telescope live grep" )
   nmap("<leader>st", builtin.builtin, "Telescope")
 
-  -- stylua: ignore end
+-- stylua: ignore end
 -- }}}
 
+require('minuet').setup({
+  virtualtext = {
+    auto_trigger_ft = {},
+    keymap = {
+      -- accept whole completion
+      accept = '<A-A>',
+      -- accept one line
+      accept_line = '<A-a>',
+      -- accept n lines (prompts for number)
+      -- e.g. "A-z 2 CR" will accept 2 lines
+      accept_n_lines = '<A-z>',
+      -- Cycle to prev completion item, or manually invoke completion
+      prev = '<A-[>',
+      -- Cycle to next completion item, or manually invoke completion
+      next = '<A-]>',
+      dismiss = '<A-e>',
+    },
+  },
+  provider = 'openai_fim_compatible',
+  provider_options = {
+    openai_fim_compatible = {
+      api_key = vim.env.DEEPSEEK_API_KEY,
+      name = 'deepseek',
+      optional = {
+        max_tokens = 256,
+        top_p = 0.9,
+      },
+    },
+  },
+})
 -- Codeium {{{
 -- require('codeium').setup({
---   enable_cmp_source = true,
+--   enable_cmp_source = false,
 --   virtual_text = {
---     enabled = false,
+--     enabled = true,
 --     key_bindings = {
 --       -- Accept the current completion.
 --       accept = '<c-f>',
 --       -- Accept the next word.
---       -- accept_word = '<c-l>',
+--       accept_word = '<c-l>',
 --       -- Accept the next line.
---       accept_line = '<c-j>',
+--       -- accept_line = '<c-j>',
 --       -- Clear the virtual text.
---       clear = '<c-k>',
+--       -- clear = '<c-k>',
 --       -- Cycle to the next completion.
---       next = '<M-]>',
+--       -- next = '<M-]>',
 --       -- Cycle to the previous completion.
---       prev = '<M-[>',
+--       -- prev = '<M-[>',
 --     },
 --   },
 -- })
 -- }}}
 
+-- flash
+require('flash').setup({
+  modes = {
+    search = {
+      enabled = false,
+      highlight = { backdrop = true },
+    },
+    char = {
+      enabled = false,
+      highlight = { backdrop = false },
+      multi_line = false,
+    },
+  },
+})
+
 -- vimtex
-vim.g.vimtex_view_method = "zathura"
+vim.g.vimtex_view_method = 'zathura'
+
+-- Oil
+require('oil').setup()
 
 -- Snipets {{{
-require("luasnip.loaders.from_vscode").lazy_load()
+require('luasnip.loaders.from_vscode').lazy_load()
 -- }}}
