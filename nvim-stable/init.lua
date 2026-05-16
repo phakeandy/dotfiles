@@ -17,46 +17,53 @@ do
   nmap_zz('N')
 
   -- flash
-  map({ 'n', 'x', 'o' }, 's', function() require('flash').jump() end)
+  -- map({ 'n', 'x', 'o' }, 'S', function() require('flash').jump() end)
 
   nmap('<leader>d', '<cmd>bd<cr>')
   nmap('<leader>b', ':b')
+  nmap('<leader>w', '<cmd>w<cr>')
+  nmap('<leader>q', '<cmd>q<cr>')
 
-  map({ 'i', 'c' }, 'jk', '<esc>')
+  -- map({ 'i', 'c' }, 'jk', '<esc>')
   map('t', '<esc>', '<C-\\><C-n>')
 
-  -- Window Management {{{
-  -- map({ 't', 'i' }, '<A-h>', '<C-\\><C-n><C-w>h')
-  -- map({ 't', 'i' }, '<A-j>', '<C-\\><C-n><C-w>j')
-  -- map({ 't', 'i' }, '<A-k>', '<C-\\><C-n><C-w>k')
-  -- map({ 't', 'i' }, '<A-l>', '<C-\\><C-n><C-w>l')
-  nmap('<M-h>', '<C-w>h')
-  nmap('<M-j>', '<C-w>j')
-  nmap('<M-k>', '<C-w>k')
-  nmap('<M-l>', '<C-w>l')
-  nmap('<M-o>', '<C-w>w')
-  nmap('<M-left>', ':vertical resize -5<CR>')
-  nmap('<M-right>', ':vertical resize +5<CR>')
-  nmap('<M-up>', ':resize +5<CR>')
-  nmap('<M-down>', ':resize -5<CR>')
-  -- }}}
+  do -- Window Management
+    -- map({ 't', 'i' }, '<A-h>', '<C-\\><C-n><C-w>h')
+    -- map({ 't', 'i' }, '<A-j>', '<C-\\><C-n><C-w>j')
+    -- map({ 't', 'i' }, '<A-k>', '<C-\\><C-n><C-w>k')
+    -- map({ 't', 'i' }, '<A-l>', '<C-\\><C-n><C-w>l')
+    nmap('<M-h>', '<C-w>h')
+    nmap('<M-j>', '<C-w>j')
+    nmap('<M-k>', '<C-w>k')
+    nmap('<M-l>', '<C-w>l')
+    nmap('<M-o>', '<C-w>w')
+    nmap('<M-left>', ':vertical resize -5<CR>')
+    nmap('<M-right>', ':vertical resize +5<CR>')
+    nmap('<M-up>', ':resize +5<CR>')
+    nmap('<M-down>', ':resize -5<CR>')
+  end
 end
 
 do
   vim.o.number = true
-  -- vim.o.relativenumber = true
+  vim.o.relativenumber = true
   vim.o.clipboard = 'unnamedplus'
+  vim.g.clipboard = 'win32yank'
   vim.o.smartcase = true
-  vim.o.foldmethod = 'marker'
+  vim.o.foldmethod = 'indent'
+  vim.o.foldlevel = 99
   vim.o.cursorline = true
   vim.opt.cmdheight = 0
   vim.opt.laststatus = 3 -- Global Statusline
-  vim.o.list = false
+  vim.o.statusline = ''
+  vim.cmd.colorscheme = 'my-lunaperche'
   vim.o.wrap = true
   vim.o.exrc = true
 
   vim.o.smarttab = true
   vim.o.smartindent = true
+
+  vim.o.formatoptions = 'tcqjMm' -- Mm 能帮助格式化中文
 
   vim.o.list = true
   vim.opt.listchars =
@@ -78,18 +85,17 @@ do
   })
 
   -- Make backgroud dark
-  vim.api.nvim_set_hl(
-    0,
-    'Normal',
-    { fg = vim.api.nvim_get_hl(0, { name = 'Normal' }).fg, bg = 'black' }
-  )
+  local set_hl = vim.api.nvim_set_hl
+  set_hl(0, 'Normal', { bg = 'black' })
+  set_hl(0, 'StatusLine', { bg = 'None' })
+  set_hl(0, 'Function', { link = 'Identifier' })
 
   -- disable netrw
   vim.g.loaded_netrwPlugin = 1
   vim.g.loaded_netrw = 1
 end
 
-do
+do -- lsp
   local lsp_servers = {
     lua_ls = {
       Lua = { workspace = { library = vim.api.nvim_get_runtime_file('lua', true) } },
@@ -98,7 +104,8 @@ do
     rust_analyzer = {},
     gopls = {},
     vtsls = {},
-    pylsp = {},
+    -- pylsp = {},
+    basedpyright = {},
   }
 
   vim.pack.add({
@@ -147,7 +154,7 @@ vim.pack.add({
   -- Improve editer experience plugins
   'https://github.com/NMAC427/guess-indent.nvim',
   'https://github.com/keaising/im-select.nvim',
-  'https://github.com/folke/flash.nvim',
+  -- 'https://github.com/folke/flash.nvim',
 }, { confirm = false })
 
 require('im_select').setup()
@@ -162,11 +169,30 @@ do
     },
   })
 
-  require('blink.cmp').setup()
+  require('blink.cmp').setup({
+    keymap = {
+      -- Manually invoke minuet completion.
+      ['<A-y>'] = require('minuet').make_blink_map(),
+    },
+    sources = {
+      default = { 'lsp', 'path', 'buffer', 'snippets' },
+      providers = {
+        minuet = {
+          name = 'minuet',
+          module = 'minuet.blink',
+          async = true,
+          timeout_ms = 3000,
+          score_offset = 50, -- Gives minuet higher priority among suggestions
+        },
+      },
+    },
+    -- Recommended to avoid unnecessary request
+    completion = { trigger = { prefetch_on_insert = false } },
+  })
 end
 
 require('mini.git').setup()
-require('mini.statusline').setup()
+-- require('mini.statusline').setup()
 require('mini.align').setup()
 require('mini.icons').setup()
 require('mini.diff').setup()
@@ -175,121 +201,122 @@ require('mini.files').setup({
     go_in_plus = '<cr>',
   },
 })
--- mini.clue {{{
-local miniclue = require('mini.clue')
-miniclue.setup({
-  triggers = {
-    -- Leader triggers
-    { mode = { 'n', 'x' }, keys = '<Leader>' },
+do
+  local miniclue = require('mini.clue')
+  miniclue.setup({
+    triggers = {
+      -- Leader triggers
+      { mode = { 'n', 'x' }, keys = '<Leader>' },
 
-    -- `[` and `]` keys
-    { mode = 'n', keys = '[' },
-    { mode = 'n', keys = ']' },
+      -- `[` and `]` keys
+      { mode = 'n', keys = '[' },
+      { mode = 'n', keys = ']' },
 
-    -- Built-in completion
-    { mode = 'i', keys = '<C-x>' },
+      -- Built-in completion
+      { mode = 'i', keys = '<C-x>' },
 
-    -- `g` key
-    { mode = { 'n', 'x' }, keys = 'g' },
+      -- `g` key
+      { mode = { 'n', 'x' }, keys = 'g' },
 
-    -- Marks
-    { mode = { 'n', 'x' }, keys = "'" },
-    { mode = { 'n', 'x' }, keys = '`' },
+      -- Marks
+      { mode = { 'n', 'x' }, keys = "'" },
+      { mode = { 'n', 'x' }, keys = '`' },
 
-    -- Registers
-    { mode = { 'n', 'x' }, keys = '"' },
-    { mode = { 'i', 'c' }, keys = '<C-r>' },
+      -- Registers
+      { mode = { 'n', 'x' }, keys = '"' },
+      { mode = { 'i', 'c' }, keys = '<C-r>' },
 
-    -- Window commands
-    { mode = 'n', keys = '<C-w>' },
+      -- Window commands
+      { mode = 'n', keys = '<C-w>' },
 
-    -- `z` key
-    { mode = { 'n', 'x' }, keys = 'z' },
-  },
-  window = {
-    config = { width = 'auto' },
-  },
+      -- `z` key
+      { mode = { 'n', 'x' }, keys = 'z' },
+    },
+    window = {
+      config = { width = 'auto' },
+    },
 
-  clues = {
-    -- Enhance this by adding descriptions for <Leader> mapping groups
-    miniclue.gen_clues.square_brackets(),
-    miniclue.gen_clues.builtin_completion(),
-    miniclue.gen_clues.g(),
-    miniclue.gen_clues.marks(),
-    miniclue.gen_clues.registers(),
-    miniclue.gen_clues.windows(),
-    miniclue.gen_clues.z(),
-  },
-})
--- }}}
+    clues = {
+      -- Enhance this by adding descriptions for <Leader> mapping groups
+      miniclue.gen_clues.square_brackets(),
+      miniclue.gen_clues.builtin_completion(),
+      miniclue.gen_clues.g(),
+      miniclue.gen_clues.marks(),
+      miniclue.gen_clues.registers(),
+      miniclue.gen_clues.windows(),
+      miniclue.gen_clues.z(),
+    },
+  })
+end
 
--- Formater {{{
-local prettier = { 'prettierd', 'prettier', stop_after_first = true }
-require('conform').setup({
-  formatters_by_ft = {
-    lua = { 'stylua' },
-    python = { 'ruff_organize_imports', 'ruff_format' },
-    c = { 'clang-formart' },
-    rust = { 'rustfmt', lsp_format = 'fallback' },
-    go = { 'goimports', 'gofmt' },
+do -- format
+  local prettier = { 'prettierd', 'prettier', stop_after_first = true }
+  require('conform').setup({
+    formatters_by_ft = {
+      lua = { 'stylua' },
+      python = { 'ruff_fix', 'ruff_organize_imports', 'ruff_format' },
+      c = { 'clang-formart' },
+      rust = { 'rustfmt', lsp_format = 'fallback' },
+      go = { 'goimports', 'gofmt' },
 
-    javascript = prettier,
-    json = prettier,
-    jsonc = prettier,
-    html = prettier,
-    css = prettier,
-    -- markdown = prettier,
-  },
-  format_on_save = function(bufnr)
-    if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
-    return { timeout_ms = 500, lsp_format = 'fallback' }
-  end,
-})
+      javascript = prettier,
+      json = prettier,
+      jsonc = prettier,
+      html = prettier,
+      css = prettier,
+      -- markdown = prettier,
+    },
+    format_on_save = function(bufnr)
+      if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
+      return { timeout_ms = 500, lsp_format = 'fallback' }
+    end,
+  })
 
-vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
--- }}}
+  vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+end
 
--- Telescope {{{
-vim.pack.add({
-  'https://github.com/nvim-telescope/telescope.nvim',
-  'https://github.com/nvim-telescope/telescope-ui-select.nvim',
+do
+  vim.pack.add({
+    'https://github.com/nvim-telescope/telescope.nvim',
+    'https://github.com/nvim-telescope/telescope-ui-select.nvim',
 
-  -- needs run `cd /home/phakeandy/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/ && make`
-  'https://github.com/nvim-telescope/telescope-fzf-native.nvim',
-}, { confirm = false })
+    -- needs run `cd /home/phakeandy/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/ && make`
+    'https://github.com/nvim-telescope/telescope-fzf-native.nvim',
+  }, { confirm = false })
 
-require('telescope').setup({
-  extensions = {
-    ['ui-select'] = { require('telescope.themes').get_dropdown({}) },
-  },
-})
-require('telescope').load_extension('ui-select')
-require('telescope').load_extension('fzf')
+  require('telescope').setup({
+    extensions = {
+      ['ui-select'] = { require('telescope.themes').get_dropdown({}) },
+    },
+  })
+  require('telescope').load_extension('ui-select')
+  require('telescope').load_extension('fzf')
 
-local builtin = require('telescope.builtin')
+  local builtin = require('telescope.builtin')
 
   -- stylua: ignore start
   nmap("<leader>f", builtin.find_files, "Telescope find files")
+  nmap("<c-p>", builtin.find_files, "Telescope find files")
   nmap("<leader>,", builtin.buffers, "Telescope buffers")
   nmap("<leader>sc", function() builtin.find_files({ cwd = vim.fn.stdpath("config") }) end, "Telescope find neovim configuraition files")
   nmap("<leader>sh", builtin.help_tags, "Telescope help tags")
-  nmap("<leader>sg", builtin.live_grep, "Telescope live grep" )
+  nmap("<leader>so", builtin.oldfiles, "Telescope old tags")
+  nmap("<leader>/", builtin.live_grep, "Telescope live grep" )
   nmap("<leader>st", builtin.builtin, "Telescope")
-
--- stylua: ignore end
--- }}}
+  -- stylua: ignore end
+end
 
 require('minuet').setup({
   virtualtext = {
     auto_trigger_ft = {},
     keymap = {
       -- accept whole completion
-      accept = '<A-A>',
+      accept = '<c-f>',
       -- accept one line
-      accept_line = '<A-a>',
+      -- accept_line = '<A-a>',
       -- accept n lines (prompts for number)
       -- e.g. "A-z 2 CR" will accept 2 lines
-      accept_n_lines = '<A-z>',
+      -- accept_n_lines = '<A-z>',
       -- Cycle to prev completion item, or manually invoke completion
       prev = '<A-[>',
       -- Cycle to next completion item, or manually invoke completion
@@ -300,7 +327,7 @@ require('minuet').setup({
   provider = 'openai_fim_compatible',
   provider_options = {
     openai_fim_compatible = {
-      api_key = vim.env.DEEPSEEK_API_KEY,
+      api_key = 'DEEPSEEK_API_KEY',
       name = 'deepseek',
       optional = {
         max_tokens = 256,
@@ -333,19 +360,19 @@ require('minuet').setup({
 -- }}}
 
 -- flash
-require('flash').setup({
-  modes = {
-    search = {
-      enabled = false,
-      highlight = { backdrop = true },
-    },
-    char = {
-      enabled = false,
-      highlight = { backdrop = false },
-      multi_line = false,
-    },
-  },
-})
+-- require('flash').setup({
+--   modes = {
+--     search = {
+--       enabled = false,
+--       highlight = { backdrop = true },
+--     },
+--     char = {
+--       enabled = false,
+--       highlight = { backdrop = false },
+--       multi_line = false,
+--     },
+--   },
+-- })
 
 -- vimtex
 vim.g.vimtex_view_method = 'zathura'
@@ -353,6 +380,5 @@ vim.g.vimtex_view_method = 'zathura'
 -- Oil
 require('oil').setup()
 
--- Snipets {{{
+-- Snipets
 require('luasnip.loaders.from_vscode').lazy_load()
--- }}}
