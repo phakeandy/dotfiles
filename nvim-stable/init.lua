@@ -42,6 +42,26 @@ do
     nmap('<M-up>', ':resize +5<CR>')
     nmap('<M-down>', ':resize -5<CR>')
   end
+
+  map('v', '<leader>y', function()
+    -- NOTE The standard marks '< and '> do not update until you leave visual mode.
+    local region = vim.fn.getregionpos(vim.fn.getpos('v'), vim.fn.getpos('.'), {
+      type = 'v',
+      exclusive = false,
+      eol = false,
+    })
+    local file_path = vim.fn.expand('%:p')
+    local start_line = region[1][1][2]
+    local end_line = region[#region][1][2]
+    local text = string.format('%s:%d-%d', file_path, start_line, end_line)
+    vim.fn.setreg('+', text)
+    -- I dont know why vim.cmd('norm! <Esc>') does not work
+    vim.api.nvim_feedkeys(
+      vim.api.nvim_replace_termcodes('<Esc>', false, true, true),
+      'nx',
+      false
+    )
+  end)
 end
 
 do
@@ -49,14 +69,15 @@ do
   vim.o.relativenumber = true
   vim.o.clipboard = 'unnamedplus'
   vim.g.clipboard = 'win32yank'
-  vim.o.smartcase = true
+  -- vim.o.smartcase = true
+  vim.o.ignorecase = true
   vim.o.foldmethod = 'indent'
   vim.o.foldlevel = 99
   vim.o.cursorline = true
   vim.opt.cmdheight = 0
   vim.opt.laststatus = 3 -- Global Statusline
   vim.o.statusline = ''
-  vim.cmd.colorscheme = 'my-lunaperche'
+  vim.cmd('colorscheme my-lunaperche')
   vim.o.wrap = true
   vim.o.exrc = true
 
