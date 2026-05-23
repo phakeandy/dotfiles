@@ -77,9 +77,9 @@ do
   vim.opt.cmdheight = 0
   vim.opt.laststatus = 3 -- Global Statusline
   vim.o.statusline = ''
-  vim.cmd('colorscheme my-lunaperche')
   vim.o.wrap = true
   vim.o.exrc = true
+  vim.o.splitright = true
 
   vim.o.smarttab = true
   vim.o.smartindent = true
@@ -98,18 +98,12 @@ do
   require('vim._core.ui2').enable()
   vim.cmd('packadd! nohlsearch')
   vim.cmd('packadd! matchit')
-  vim.opt.path:append('**') -- set for :find
-  vim.o.wildignore = '*/node_modules/*,*/.git/*,*/.svn/*'
+  -- vim.opt.path:append('**') -- set for :find
+  -- vim.o.wildignore = '*/node_modules/*,*/.git/*,*/.svn/*'
 
   create_autocmd({ 'TextYankPost' }, {
     callback = function() vim.hl.on_yank({ higroup = 'Visual', timeout = 300 }) end,
   })
-
-  -- Make backgroud dark
-  local set_hl = vim.api.nvim_set_hl
-  set_hl(0, 'Normal', { bg = 'black' })
-  set_hl(0, 'StatusLine', { bg = 'None' })
-  set_hl(0, 'Function', { link = 'Identifier' })
 
   -- disable netrw
   vim.g.loaded_netrwPlugin = 1
@@ -212,11 +206,11 @@ do
   })
 end
 
-require('mini.git').setup()
+-- require('mini.git').setup()
 -- require('mini.statusline').setup()
 require('mini.align').setup()
 require('mini.icons').setup()
-require('mini.diff').setup()
+-- require('mini.diff').setup()
 require('mini.files').setup({
   mappings = {
     go_in_plus = '<cr>',
