@@ -3,10 +3,10 @@ vim.pack.add({
   'https://github.com/nvim-mini/mini.nvim',
   'https://github.com/tpope/vim-fugitive',
 
-  'https://github.com/L3MON4D3/LuaSnip',
-  'https://github.com/rafamadriz/friendly-snippets',
+  -- 'https://github.com/L3MON4D3/LuaSnip',
+  -- 'https://github.com/rafamadriz/friendly-snippets',
 
-  'https://github.com/milanglacier/minuet-ai.nvim',
+  -- 'https://github.com/milanglacier/minuet-ai.nvim',
   'https://github.com/stevearc/oil.nvim',
 
   'https://github.com/sphamba/smear-cursor.nvim',
@@ -26,22 +26,8 @@ require('smear_cursor').setup({
   time_interval = 7, -- milliseconds
 })
 
-require('mini.align').setup()
+-- require('mini.align').setup() -- just use column
 require('mini.icons').setup()
-
-require('minuet').setup({
-  provider = 'openai_fim_compatible',
-  provider_options = {
-    openai_fim_compatible = {
-      api_key = 'DEEPSEEK_API_KEY',
-      name = 'deepseek',
-      optional = {
-        max_tokens = 256,
-        top_p = 0.9,
-      },
-    },
-  },
-})
 
 -- vimtex
 vim.g.vimtex_view_method = 'zathura'

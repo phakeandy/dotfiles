@@ -1,3 +1,5 @@
+if true then return {} end
+
 vim.o.completeopt = 'menuone,noselect,fuzzy'
 vim.pack.add({
   {
