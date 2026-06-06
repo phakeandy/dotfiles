@@ -1,6 +1,6 @@
 local colors = {
   bg = '#000000',
-  fg = '#d1cdc7',
+  fg = '#ffffff',
   string = '#50c878',
   comment = '#ff9b21',
 }

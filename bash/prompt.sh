@@ -25,7 +25,7 @@ _update_bash_prompt() {
     local blue='\[\033[01;34m\]'
     local red='\[\033[01;31m\]'
     local reset='\[\033[00m\]'
-    local title='\[\e]0;\u: \w\a\]'
+    # local title='\[\e]0;\u: \w\a\]'
 
     PS1="${title}${debian_chroot:+($debian_chroot)}${green}${job_str}${reset}${blue}\W${reset}${red}${git_info}${reset} \$ "
 }

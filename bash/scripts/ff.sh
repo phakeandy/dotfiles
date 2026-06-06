@@ -1,6 +1,6 @@
 ffw() {
     local target
-    target=$(ls ~/workspace/ | fzy | xargs -I{} realpath ~/workspace/{})
+    target=$(ls ~/workspace/ | fzf | xargs -I{} realpath ~/workspace/{})
     echo "$target"
     cd "$target"
 }
@@ -8,7 +8,7 @@ ffw() {
 
 ffd() {
     local target
-    target=$(find ~/dotfiles -type f | fzy)
+    target=$(find ~/dotfiles -type f | fzf)
     if [[ -n "$target" ]]; then
         $EDITOR "$target"
     fi

@@ -1,47 +1,27 @@
 local nmap = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { desc = desc }) end
 local map = vim.keymap.set
 local create_autocmd = vim.api.nvim_create_autocmd
+local k = vim.keycode
 
 do
   vim.g.mapleader = ' '
   vim.g.maplocalleader = '\\'
   nmap('c', '"_c')
-  -- nmap('-', function() require('mini.files').open(vim.api.nvim_buf_get_name(0)) end)
   nmap('-', '<cmd>Oil<cr>')
 
   local nmap_zz = function(lhs) vim.keymap.set('n', lhs, lhs .. 'zz') end
 
-  nmap_zz('<c-d>')
-  nmap_zz('<c-u>')
-  nmap_zz('n')
-  nmap_zz('N')
-
-  -- flash
-  -- map({ 'n', 'x', 'o' }, 'S', function() require('flash').jump() end)
+  vim.cmd([[
+    command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
+  ]])
 
   nmap('<leader>d', '<cmd>bd<cr>')
   nmap('<leader>b', ':b')
-  nmap('<leader>w', '<cmd>w<cr>')
-  nmap('<leader>q', '<cmd>q<cr>')
+  -- nmap('<backspace>', [[<c-w><c-w>|<c-w>_]])
+  -- nmap('<backspace>', [[<c-w>=]])
 
   -- map({ 'i', 'c' }, 'jk', '<esc>')
   map('t', '<esc>', '<C-\\><C-n>')
-
-  do -- Window Management
-    -- map({ 't', 'i' }, '<A-h>', '<C-\\><C-n><C-w>h')
-    -- map({ 't', 'i' }, '<A-j>', '<C-\\><C-n><C-w>j')
-    -- map({ 't', 'i' }, '<A-k>', '<C-\\><C-n><C-w>k')
-    -- map({ 't', 'i' }, '<A-l>', '<C-\\><C-n><C-w>l')
-    nmap('<M-h>', '<C-w>h')
-    nmap('<M-j>', '<C-w>j')
-    nmap('<M-k>', '<C-w>k')
-    nmap('<M-l>', '<C-w>l')
-    nmap('<M-o>', '<C-w>w')
-    nmap('<M-left>', ':vertical resize -5<CR>')
-    nmap('<M-right>', ':vertical resize +5<CR>')
-    nmap('<M-up>', ':resize +5<CR>')
-    nmap('<M-down>', ':resize -5<CR>')
-  end
 
   map('v', '<leader>y', function()
     -- NOTE The standard marks '< and '> do not update until you leave visual mode.
@@ -55,12 +35,7 @@ do
     local end_line = region[#region][1][2]
     local text = string.format('%s:%d-%d', file_path, start_line, end_line)
     vim.fn.setreg('+', text)
-    -- I dont know why vim.cmd('norm! <Esc>') does not work
-    vim.api.nvim_feedkeys(
-      vim.api.nvim_replace_termcodes('<Esc>', false, true, true),
-      'nx',
-      false
-    )
+    vim.cmd('normal! \27')
   end)
 end
 
@@ -91,13 +66,17 @@ do
     { tab = '» ', trail = '·', nbsp = '␣', precedes = '<', extends = '>' }
 
   vim.diagnostic.config({
-    underline = false,
-    virtual_text = false,
+    severity_sort = true,
+    -- This filters virtual text and signs to only show Errors
+    virtual_text = { severity = { min = vim.diagnostic.severity.ERROR } },
+    signs = false,
+    underline = { severity = { min = vim.diagnostic.severity.ERROR } },
   })
 
   require('vim._core.ui2').enable()
   vim.cmd('packadd! nohlsearch')
   vim.cmd('packadd! matchit')
+  vim.cmd('packadd! cfilter')
   -- vim.opt.path:append('**') -- set for :find
   -- vim.o.wildignore = '*/node_modules/*,*/.git/*,*/.svn/*'
 
@@ -121,6 +100,7 @@ do -- lsp
     vtsls = {},
     -- pylsp = {},
     basedpyright = {},
+    -- pyright = {},
   }
 
   vim.pack.add({
@@ -132,22 +112,20 @@ do -- lsp
   }, { confirm = false })
 
   require('mason').setup()
-  require('mason-lspconfig').setup()
-  require('mason-tool-installer').setup({
-    ensure_installed = vim.tbl_keys(lsp_servers),
-  })
+  -- require('mason-lspconfig').setup()
+  -- require('mason-tool-installer').setup({
+  --   ensure_installed = vim.tbl_keys(lsp_servers),
+  -- })
 
   for server, config in pairs(lsp_servers) do
     vim.lsp.config(server, {
       settings = config,
 
       on_attach = function(_, bufnr)
-        vim.o.signcolumn = 'yes'
-        -- stylua: ignore start
-        map('n', '<leader>ca', vim.lsp.buf.code_action, { buffer = bufnr, desc = 'vim.lsp.buf.code_action()' })
-        -- stylua: ignore end
+        -- vim.o.signcolumn = 'yes'
       end,
     })
+    vim.lsp.enable(server)
   end
 end
 
@@ -164,6 +142,8 @@ vim.pack.add({
   'https://github.com/milanglacier/minuet-ai.nvim',
   'https://github.com/stevearc/oil.nvim',
 
+  'https://github.com/sphamba/smear-cursor.nvim',
+
   'https://github.com/lervag/vimtex',
 
   -- Improve editer experience plugins
@@ -174,6 +154,11 @@ vim.pack.add({
 
 require('im_select').setup()
 require('guess-indent').setup()
+
+require('smear_cursor').setup({
+  cursor_color = '#52ad70', -- my terminal cursor color
+  time_interval = 7, -- milliseconds
+})
 
 do
   vim.o.completeopt = 'menuone,noselect,fuzzy'
@@ -211,11 +196,11 @@ end
 require('mini.align').setup()
 require('mini.icons').setup()
 -- require('mini.diff').setup()
-require('mini.files').setup({
-  mappings = {
-    go_in_plus = '<cr>',
-  },
-})
+-- require('mini.files').setup({
+--   mappings = {
+--     go_in_plus = '<cr>',
+--   },
+-- })
 do
   local miniclue = require('mini.clue')
   miniclue.setup({
@@ -283,42 +268,15 @@ do -- format
     },
     format_on_save = function(bufnr)
       if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
+      local disable_autoformat_filetype = { 'python', 'c' }
+      for _, ft in ipairs(disable_autoformat_filetype) do
+        if vim.bo.filetype == ft then return end
+      end
       return { timeout_ms = 500, lsp_format = 'fallback' }
     end,
   })
 
   vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-end
-
-do
-  vim.pack.add({
-    'https://github.com/nvim-telescope/telescope.nvim',
-    'https://github.com/nvim-telescope/telescope-ui-select.nvim',
-
-    -- needs run `cd /home/phakeandy/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/ && make`
-    'https://github.com/nvim-telescope/telescope-fzf-native.nvim',
-  }, { confirm = false })
-
-  require('telescope').setup({
-    extensions = {
-      ['ui-select'] = { require('telescope.themes').get_dropdown({}) },
-    },
-  })
-  require('telescope').load_extension('ui-select')
-  require('telescope').load_extension('fzf')
-
-  local builtin = require('telescope.builtin')
-
-  -- stylua: ignore start
-  nmap("<leader>f", builtin.find_files, "Telescope find files")
-  nmap("<c-p>", builtin.find_files, "Telescope find files")
-  nmap("<leader>,", builtin.buffers, "Telescope buffers")
-  nmap("<leader>sc", function() builtin.find_files({ cwd = vim.fn.stdpath("config") }) end, "Telescope find neovim configuraition files")
-  nmap("<leader>sh", builtin.help_tags, "Telescope help tags")
-  nmap("<leader>so", builtin.oldfiles, "Telescope old tags")
-  nmap("<leader>/", builtin.live_grep, "Telescope live grep" )
-  nmap("<leader>st", builtin.builtin, "Telescope")
-  -- stylua: ignore end
 end
 
 require('minuet').setup({
@@ -397,3 +355,5 @@ require('oil').setup()
 
 -- Snipets
 require('luasnip.loaders.from_vscode').lazy_load()
+
+-- require('jupytext').setup({})

@@ -65,13 +65,19 @@ if [[ -x "$(command -v nvim)" ]]; then
 	export MANPAGER="nvim +Man!"
 fi
 
+if [[ -x "$(command -v fzf)" ]]; then
+    eval "$(fzf --bash)"
+    export FZF_DEFAULT_OPTS='--height 50% --layout=reverse --border --color=pointer:12'
+fi
+
 
 # If lesspipe is available, enable it.
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 ## Source Other File
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases 
-[ -f $HOME/dotfiles/bash/prompt.sh ] && . $HOME/dotfiles/bash/prompt.sh
+# [ -f $HOME/dotfiles/bash/prompt.sh ] && . $HOME/dotfiles/bash/prompt.sh
+[ -f $HOME/dotfiles/bash/simple_prompt.sh ] && . $HOME/dotfiles/bash/simple_prompt.sh
 [ -f $HOME/dotfiles/bash/scripts/ff.sh ] && . $HOME/dotfiles/bash/scripts/ff.sh
 
 # Source bash-completion file.
