@@ -3,7 +3,10 @@ let maplocalleader = "\\"
 
 nnoremap c "_c
 nnoremap - <Cmd>Oil<CR>
-tnoremap <Esc> <C-\><C-n>
+augroup EscInTerm
+  au TermOpen * tnoremap <buffer> <Esc> <c-\><c-n>
+  au FileType fzf tunmap <buffer> <Esc>
+augroup END
 
 command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
 

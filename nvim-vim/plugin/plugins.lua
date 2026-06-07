@@ -31,9 +31,3 @@ require('mini.icons').setup()
 
 -- vimtex
 vim.g.vimtex_view_method = 'zathura'
-
--- Oil
-require('oil').setup()
-
--- Snipets
-require('luasnip.loaders.from_vscode').lazy_load()
