@@ -4,7 +4,7 @@ vim.pack.add({
 
 require('oil').setup({
   keymaps = {
-    ['gy'] = {
+    ['<leader>y'] = {
       desc = 'Copy relative filepath to system clipboard',
       callback = function()
         local entry = require('oil').get_cursor_entry()
@@ -14,7 +14,7 @@ require('oil').setup({
         vim.fn.setreg('+', relpath .. entry.name)
       end,
     },
-    ['gY'] = {
+    ['<leader>Y'] = {
       desc = 'Copy filepath to system clipboard',
       callback = function()
         require('oil.actions').copy_entry_path.callback()

@@ -2,8 +2,9 @@ vim.pack.add({
   'https://github.com/nvim-lua/plenary.nvim',
   'https://github.com/nvim-mini/mini.nvim',
   'https://github.com/tpope/vim-fugitive',
+  'https://github.com/nvim-lualine/lualine.nvim',
 
-  -- 'https://github.com/L3MON4D3/LuaSnip',
+  'https://github.com/L3MON4D3/LuaSnip',
   -- 'https://github.com/rafamadriz/friendly-snippets',
 
   -- 'https://github.com/milanglacier/minuet-ai.nvim',
@@ -28,6 +29,24 @@ require('smear_cursor').setup({
 
 -- require('mini.align').setup() -- just use column
 require('mini.icons').setup()
+require('lualine').setup()
+
+require('luasnip.loaders.from_snipmate').lazy_load()
+
+vim.cmd([[
+" press <Tab> to expand or jump in a snippet. These can also be mapped separately
+" via <Plug>luasnip-expand-snippet and <Plug>luasnip-jump-next.
+imap <silent><expr> <Tab> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>'
+" -1 for jumping backwards.
+inoremap <silent> <S-Tab> <cmd>lua require'luasnip'.jump(-1)<Cr>
+
+snoremap <silent> <Tab> <cmd>lua require('luasnip').jump(1)<Cr>
+snoremap <silent> <S-Tab> <cmd>lua require('luasnip').jump(-1)<Cr>
+
+" For changing choices in choiceNodes (not strictly necessary for a basic setup).
+imap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
+smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
+]])
 
 -- vimtex
 vim.g.vimtex_view_method = 'zathura'

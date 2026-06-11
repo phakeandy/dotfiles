@@ -3,9 +3,10 @@ let maplocalleader = "\\"
 
 nnoremap c "_c
 nnoremap - <Cmd>Oil<CR>
+nnoremap <tab> <c-w><c-w><c-w>_
 augroup EscInTerm
-  au TermOpen * tnoremap <buffer> <Esc> <c-\><c-n>
-  au FileType fzf tunmap <buffer> <Esc>
+  autocmd TermOpen * tnoremap <buffer> <Esc> <c-\><c-n>
+  autocmd FileType fzf tunmap <buffer> <Esc>
 augroup END
 
 command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
@@ -14,11 +15,10 @@ function! CopyVisualRangeToClipboard()
   let start_line = line("'<")
   let end_line   = line("'>")
   normal! \<Esc>
-  let file_path = expand("%:p")
+  let file_path = expand("%:p:~")
   let text = file_path . ":" . start_line . "-" . end_line
   let @+ = text
 endfunction
-
 vnoremap <silent> <leader>y :call CopyVisualRangeToClipboard()<CR>
 
 set number relativenumber
@@ -27,13 +27,15 @@ let g:clipboard = 'win32yank'
 set ignorecase
 set foldmethod=indent foldlevel=99
 set cursorline
-set cmdheight=0 laststatus=3 statusline=
+"set cmdheight=0 laststatus=3 statusline=
+set noshowmode
 set wrap
 set exrc
 set splitright splitbelow
 set smarttab smartindent
 set formatoptions+=Mm " include the chinese charactor
 set list listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
+set completeopt=longest,menu,popup pumheight=5
 
 lua << EOF
 vim.diagnostic.config({

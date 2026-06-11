@@ -11,7 +11,6 @@ case $- in
     *i*) ;;
       *) return;;
 esac
-
 # History Settings
 # In Bash, history usally refer to the history list in memory for each shell
 # session. When a shell exits, the history list is saved to a file.
@@ -27,6 +26,7 @@ shopt -s checkwinsize
 # shopt -s lithist
 shopt -s globstar              # ** for recursive search
 
+stty -ixon                     # Disable Ctrl-S
 
 [ -d "$HOME/bin" ] && PATH="$HOME/bin:$PATH"
 [ -d "$HOME/.local/bin" ] && PATH="$HOME/.local/bin:$PATH"

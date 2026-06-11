@@ -19,7 +19,14 @@ vim.pack.add({
 require('mason').setup()
 
 for server, config in pairs(lsp_servers) do
-  vim.lsp.config(server, { settings = config })
+  vim.lsp.config(server, {
+    settings = config,
+    -- on_attach = function(client, bufnr)
+    --   vim.lsp.completion.enable(true, client.id, bufnr, {
+    --     autotrigger = true,
+    --     convert = function(item) return { abbr = item.label:gsub('%b()', '') } end,
+    --   })
+    -- end,
+  })
   vim.lsp.enable(server)
-  vim.lsp.completion.enable()
 end

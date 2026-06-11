@@ -6,7 +6,7 @@ EOF
 runtime! /home/phakeandy/.nix-profile/bin/fzf
 
 noremap <leader>f <cmd>Files<cr>
-noremap <leader>sl <cmd>BFiles<cr>
+noremap <localleader>f <cmd>BFiles<cr>
 noremap <leader>, <cmd>Buffers<cr>
 let opt = { 'window': 'call FloatingFZF()' }
 
