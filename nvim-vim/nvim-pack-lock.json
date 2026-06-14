@@ -30,8 +30,13 @@
       "src": "https://github.com/keaising/im-select.nvim"
     },
     "jieba.nvim": {
-      "rev": "d116ca2fc7cfbd1b1d6c19c516e8ad194ec8706a",
+      "rev": "c80bb2ffc0d772bbf3cf3378575e4b1a425dd410",
       "src": "https://github.com/neo451/jieba.nvim"
+    },
+    "jieba.vim": {
+      "rev": "80e951b6a5c5b8ecbfbc6f0f826b716e19c1f561",
+      "src": "https://github.com/kkew3/jieba.vim",
+      "version": "'release'"
     },
     "jupynium.nvim": {
       "rev": "dbd632bfa7883244c36152fc97fd6da54c443eed",
@@ -55,14 +60,14 @@
     },
     "mini.nvim": {
       "rev": "fb4ccfed03c1f0d9db702f93a65cb4c0c6c2832b",
-      "src": "https://github.com/echasnovski/mini.nvim"
+      "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "minuet-ai.nvim": {
       "rev": "d38c2f08b024cd455d01e880a47c8165ba78efbd",
       "src": "https://github.com/milanglacier/minuet-ai.nvim"
     },
     "nvim-lspconfig": {
-      "rev": "41ceb6bba3a40128b7841f5b7f5a9dae7201e823",
+      "rev": "451d4ef9abd4f0f08e379ef0d55d1c391b6125a7",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-treesitter": {

@@ -10,6 +10,7 @@ augroup EscInTerm
 augroup END
 
 command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
+command! PackList lua vim.pack.update(nil, { offline = true })
 
 function! CopyVisualRangeToClipboard()
   let start_line = line("'<")

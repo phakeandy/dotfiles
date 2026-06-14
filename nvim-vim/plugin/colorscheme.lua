@@ -1,8 +1,10 @@
 local colors = {
   bg = '#000000',
-  fg = '#ffffff',
+  fg = '#c6c6c6',
   string = '#50c878',
   comment = '#ff9b21',
+  -- comment = '#91b1f1',
+  keyword = '#91b1f1',
 }
 
 local highlights = {
@@ -11,11 +13,12 @@ local highlights = {
   Comment = { fg = colors.comment },
   Identifier = { link = 'Normal' },
   Function = { link = 'Normal' },
-  Statement = { link = 'Normal' },
+  Statement = { fg = colors.keyword },
   Constant = { link = 'Normal' },
   Special = { link = 'Normal' },
 
   StatusLine = { bg = 'None' },
+  MatchParen = { fg = '#ff00af' },
 
   ['@variable'] = { link = 'Normal' },
 }

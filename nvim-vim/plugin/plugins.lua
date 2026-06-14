@@ -17,6 +17,8 @@ vim.pack.add({
   -- Improve editer experience plugins
   'https://github.com/NMAC427/guess-indent.nvim',
   'https://github.com/keaising/im-select.nvim',
+  -- { src = 'https://github.com/kkew3/jieba.vim', version = 'release' },
+  -- 'https://github.com/neo451/jieba.nvim',
 }, { confirm = false })
 
 require('im_select').setup()
@@ -50,3 +52,16 @@ smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' 
 
 -- vimtex
 vim.g.vimtex_view_method = 'zathura'
+
+vim.api.nvim_create_autocmd('PackChanged', {
+  callback = function(ev)
+    local name, kind = ev.data.spec.name, ev.data.kind
+
+    -- if name == 'jieba.vim' and (kind == 'update' or kind == 'install') then
+    --   vim.cmd('call jieba_vim#install()')
+    -- end
+  end,
+})
+
+vim.g.jieba_vim_keymap = 1
+vim.g.jieba_vim_lazy = 1
