@@ -80,7 +80,7 @@ precmd() {
         job_str="[${job_count}] "
     fi
 
-    PS1="%F{green}${job_str}%f%F{magenta}\$%f "
+    PS1="%F{green}${job_str}%f%F{cyan}\$%f "
 }
 
 # Alias
@@ -103,12 +103,10 @@ if command -v nvim >/dev/null 2&>1; then
 	export MANPAGER="nvim +Man!"
 fi
 
-if [[ -x "$(command -v fzf)" ]]; then
+if command -v fzf >/dev/null 2&>1; then
     eval "$(fzf --zsh)"
     export FZF_DEFAULT_OPTS='--height 50% --layout=reverse --border --color=pointer:12'
 fi
 
-# nix
-if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-  source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-fi
+[ -f $HOME/.api_key ] && source $HOME/.api_key
+
