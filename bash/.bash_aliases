@@ -4,3 +4,5 @@ alias gaa="git add -A"
 alias gcm="git commit"
 alias glgl="git log --oneline --graph -10"
 alias glg="git log --oneline --graph"
+
+alias e="$EDITOR"

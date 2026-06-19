@@ -9,6 +9,7 @@ vim.pack.add({
 
   -- 'https://github.com/milanglacier/minuet-ai.nvim',
   'https://github.com/stevearc/oil.nvim',
+  'https://github.com/mikavilpas/yazi.nvim',
 
   'https://github.com/sphamba/smear-cursor.nvim',
 
@@ -53,6 +54,14 @@ smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' 
 -- vimtex
 vim.g.vimtex_view_method = 'zathura'
 
+-- yazi
+require('yazi').setup({})
+vim.cmd([[
+nnoremap <leader>e <cmd>Yazi<cr>
+cabbrev Y Yazi
+cabbrev yy Yazi
+]])
+
 vim.api.nvim_create_autocmd('PackChanged', {
   callback = function(ev)
     local name, kind = ev.data.spec.name, ev.data.kind
@@ -62,6 +71,3 @@ vim.api.nvim_create_autocmd('PackChanged', {
     -- end
   end,
 })
-
-vim.g.jieba_vim_keymap = 1
-vim.g.jieba_vim_lazy = 1

@@ -36,14 +36,14 @@ set splitright splitbelow
 set smarttab smartindent
 set formatoptions+=Mm " include the chinese charactor
 set list listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
-set completeopt=longest,menu,popup pumheight=5
+set completeopt=longest,menuone,popup pumheight=6
 
 lua << EOF
 vim.diagnostic.config({
   severity_sort = true,
-  virtual_text = { severity = { min = vim.diagnostic.severity.ERROR } },
+  --virtual_text = { severity = { min = vim.diagnostic.severity.ERROR } },
   signs = false,
-  underline = { severity = { min = vim.diagnostic.severity.ERROR } },
+  --underline = { severity = { min = vim.diagnostic.severity.ERROR } },
 })
 EOF
 
@@ -60,4 +60,4 @@ augroup END
 
 " 禁用 netrw
 let g:loaded_netrwPlugin = 1
-let g:loaded_netrw = 1
+let g:loaded_netrw = 0
