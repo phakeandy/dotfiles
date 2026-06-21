@@ -98,12 +98,12 @@ alias wip="git commit -v -m wip"
 alias e="$EDITOR"
 
 
-if command -v nvim >/dev/null 2&>1; then
+if command -v nvim >/dev/null 2>&1; then
 	export EDITOR="nvim"
 	export MANPAGER="nvim +Man!"
 fi
 
-if command -v fzf >/dev/null 2&>1; then
+if command -v fzf >/dev/null 2>&1; then
     eval "$(fzf --zsh)"
     export FZF_DEFAULT_OPTS='--height 50% --layout=reverse --border --color=pointer:12'
 fi

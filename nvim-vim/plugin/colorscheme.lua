@@ -2,9 +2,10 @@ local colors = {
   bg = '#000000',
   fg = '#c6c6c6',
   string = '#50c878',
-  comment = '#ff9b21',
-  -- comment = '#91b1f1',
+  -- comment = '#5fafff',
+  comment = '#9b9ea4',
   keyword = '#91b1f1',
+  -- keyword = '#f5a97f',
 }
 
 local highlights = {

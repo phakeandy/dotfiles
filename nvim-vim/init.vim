@@ -4,6 +4,7 @@ let maplocalleader = "\\"
 nnoremap c "_c
 nnoremap - <Cmd>Oil<CR>
 nnoremap <tab> <c-w><c-w><c-w>_
+nnoremap <leader>b :ls<cr>:b<space>
 augroup EscInTerm
   autocmd TermOpen * tnoremap <buffer> <Esc> <c-\><c-n>
   autocmd FileType fzf tunmap <buffer> <Esc>
@@ -40,8 +41,8 @@ set completeopt=longest,menuone,popup pumheight=6
 
 lua << EOF
 vim.diagnostic.config({
-  severity_sort = true,
-  --virtual_text = { severity = { min = vim.diagnostic.severity.ERROR } },
+  --severity_sort = true,
+  virtual_text = true,
   signs = false,
   --underline = { severity = { min = vim.diagnostic.severity.ERROR } },
 })
