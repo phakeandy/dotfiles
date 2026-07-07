@@ -17,6 +17,10 @@
       "rev": "572f5660cf05f8cd8834e096d7b4c921ba18e175",
       "src": "https://github.com/rafamadriz/friendly-snippets"
     },
+    "fzf": {
+      "rev": "6765f464a60e39afc20775f54f7ba40896bf1b81",
+      "src": "https://github.com/junegunn/fzf"
+    },
     "fzf.vim": {
       "rev": "356608e2ae5d9127e2c964885ea2b21ea7aea9ab",
       "src": "https://github.com/junegunn/fzf.vim"

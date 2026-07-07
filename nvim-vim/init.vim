@@ -25,7 +25,11 @@ vnoremap <silent> <leader>y :call CopyVisualRangeToClipboard()<CR>
 
 set number relativenumber
 set clipboard=unnamedplus
-let g:clipboard = 'win32yank'
+lua << EOF
+if vim.loop.os_uname().sysnam == "Windows" then
+  vim.cmd [[let g:clipboard = 'win32yank']]
+end
+EOF
 set ignorecase
 set foldmethod=indent foldlevel=99
 set cursorline

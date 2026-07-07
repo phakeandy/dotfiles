@@ -1,9 +1,9 @@
 lua << EOF
 vim.pack.add({
   'https://github.com/junegunn/fzf.vim',
+  'https://github.com/junegunn/fzf',
 })
 EOF
-runtime! /home/phakeandy/.nix-profile/bin/fzf
 
 noremap <leader>f <cmd>Files<cr>
 noremap <localleader>f <cmd>BFiles<cr>

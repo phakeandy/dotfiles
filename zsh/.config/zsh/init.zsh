@@ -108,5 +108,6 @@ if command -v fzf >/dev/null 2>&1; then
     export FZF_DEFAULT_OPTS='--height 50% --layout=reverse --border --color=pointer:12'
 fi
 
-[ -f $HOME/.api_key ] && source $HOME/.api_key
+[ -f $HOME/.apikeys ] && source $HOME/.apikeys
 
+export PATH=~/.local/bin:$PATH
