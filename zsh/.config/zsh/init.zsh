@@ -110,12 +110,16 @@ alias e="$EDITOR"
 
 if command -v fzf >/dev/null 2>&1; then
     eval "$(fzf --zsh)"
-    export FZF_DEFAULT_OPTS='--height 50% --layout=reverse --border --color=pointer:12'
+    export FZF_DEFAULT_OPTS="--height 70% --layout=reverse --color=pointer:12 \
+                             --border=none --preview-window=border-none \
+                             --preview='cat {}' --preview-window hidden \
+                             --bind 'ctrl-/:toggle-preview'"
 fi
 
 [ -f $HOME/.apikeys ] && source $HOME/.apikeys
 
 export PATH=~/.local/bin:$PATH
+export PATH=~/bin:$PATH
 
 ffw() {
     local target

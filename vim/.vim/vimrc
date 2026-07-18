@@ -8,7 +8,7 @@ set noerrorbells vb t_vb=		" 删除烦人的铃声和闪烁
 set hidden				" 允许在有未保存更改的情况下切换到其他缓冲区
 set hlsearch				" 高亮搜索结果
 " set autochdir
-set foldmethod=indent
+set foldmethod=indent foldlevel=1000
 set formatoptions+=Mm " include the chinese charactor
 set grepprg=rg\ --vimgrep\ --no-heading
 set exrc
