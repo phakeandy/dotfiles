@@ -3,7 +3,8 @@ let maplocalleader = "\\"
 
 nnoremap c "_c
 nnoremap - <Cmd>Oil<CR>
-nnoremap <tab> <c-w><c-w><c-w>_
+"nnoremap <tab> <c-w><c-w><c-w>_
+nnoremap <leader><leader> <c-w><c-w>
 nnoremap <leader>b :ls<cr>:b<space>
 augroup EscInTerm
   autocmd TermOpen * tnoremap <buffer> <Esc> <c-\><c-n>
@@ -52,7 +53,7 @@ vim.diagnostic.config({
 })
 EOF
 
-lua require('vim._core.ui2').enable()
+"lua require('vim._core.ui2').enable()
 
 packadd! nohlsearch
 packadd! matchit

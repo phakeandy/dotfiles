@@ -1,4 +1,12 @@
 .envrc
+.env
 
+# Agent
 **/.claude/settings.local.json
+
+# Editor
 .nvim.lua
+.exrc
+*.swp
+*.swo
+*.swn

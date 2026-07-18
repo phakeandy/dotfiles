@@ -1,15 +1,24 @@
 [user]
-        email = whota0@163.com
-        name = phakeandy
+	email = whota0@163.com
+	name = phakeandy
 [init]
-        defaultBranch = main
+	defaultBranch = main
 [pull]
-        ff = only
-[core]
-        editor = nvim
+	ff = only
 [credential "https://github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !gh auth git-credential
+[core]
+	pager = delta
+	quotepath = false
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true  # use n and N to move between diff sections
+	dark = true      # or light = true, or omit for auto-detection
+	side-by-side = true
+[merge]
+	conflictStyle = zdiff3

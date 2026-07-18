@@ -86,6 +86,7 @@ precmd() {
 # Alias
 alias gco='git checkout' && compdef _git gco=git-checkout
 alias gb='git branch' && compdef _git gb=git-branch
+alias gd='git diff' && compdef _git gd=git-diff
 alias ga='git add' && compdef _git ga=git-add
 alias gaa='git add --all' && compdef _git ga=git-add
 alias gcm='git commit -v' && compdef _git gcm=git-commit
@@ -93,15 +94,19 @@ alias glg='git log --oneline --graph' && compdef _git glg=git-log
 alias glgg='git log --oneline --graph -5' && compdef _git glgg=git-log
 alias gss='git status -s' && compdef _git gss=git-status
 alias gst='git status' && compdef _git gst=git-status
+alias gls='git ls-files' && compdef _git gls=git-ls-files
 alias wip="git commit -v -m wip"
 
-alias e="$EDITOR"
-
-
-if command -v nvim >/dev/null 2>&1; then
-	export EDITOR="nvim"
-	export MANPAGER="nvim +Man!"
+if command -v fdfind > /dev/null 2>&1; then
+     alias fd=fdfind
 fi
+
+#if command -v nvim >/dev/null 2>&1; then
+#	export EDITOR="nvim"
+#	export MANPAGER="nvim +Man!"
+#fi
+
+alias e="$EDITOR"
 
 if command -v fzf >/dev/null 2>&1; then
     eval "$(fzf --zsh)"
@@ -111,3 +116,19 @@ fi
 [ -f $HOME/.apikeys ] && source $HOME/.apikeys
 
 export PATH=~/.local/bin:$PATH
+
+ffw() {
+    local target
+    target=$(ls ~/workspace/ | fzf | xargs -I{} realpath ~/workspace/{})
+    echo "$target"
+    cd "$target"
+}
+
+
+ffd() {
+    local target
+    target=$(find ~/dotfiles -type f | fzf)
+    if [[ -n "$target" ]]; then
+        $EDITOR "$target"
+    fi
+}

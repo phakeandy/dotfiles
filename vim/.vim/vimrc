@@ -1,30 +1,41 @@
 set number relativenumber
 set list listchars=tab:»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set wrap showbreak=↪\
-set splitbelow
-set ignorecase smartcase
+set splitbelow splitright
+set smartcase
+set smarttab smartindent
 set noerrorbells vb t_vb=		" 删除烦人的铃声和闪烁
 set hidden				" 允许在有未保存更改的情况下切换到其他缓冲区
 set hlsearch				" 高亮搜索结果
+" set autochdir
+set foldmethod=indent
+set formatoptions+=Mm " include the chinese charactor
+set grepprg=rg\ --vimgrep\ --no-heading
+set exrc
 
 filetype plugin indent on
 
 set background=dark
 colorscheme my-lunaperche
 
-set directory=~/.vim/swap//
-
 set clipboard=unnamedplus
 " WSL clipboard config
-autocmd TextYankPost * call system('win32yank.exe -i --crlf', @")
-function! Paste(mode)
-	let @" = system('win32yank.exe -o --lf')
-	return a:mode
-endfunction
-map <expr> p Paste('p')
-map <expr> P Paste('P')
+"autocmd TextYankPost * call system('win32yank.exe -i --crlf', @")
+"function! Paste(mode)
+"	let @" = system('win32yank.exe -o --lf')
+"	return a:mode
+"endfunction
+"map <expr> p Paste('p')
+"map <expr> P Paste('P')
+
+" some version vim doesn't hava Wayland support
+" nnoremap <C-@> :call system("wl-copy", @")<CR>
+
 nnoremap c "_c
 nnoremap Y y$
+
+" Linux ibus config
+" autocmd InsertLeave * silent! execute "!ibus engine xkb:us::eng" | redraw!
 
 set path+=** wildignore+=*/node_modules/*,*/.git/*,*/.svn/*
 
@@ -37,9 +48,6 @@ packadd! hlyank
 packadd! editorconfig
 packadd! editexisting
 
-inoremap jk <esc>
-tnoremap <silent> jk <C-\><C-n>
-
 " In vim, use esc to map <m-x>
 nnoremap <esc>h <C-w>h
 nnoremap <esc>j <C-w>j
@@ -48,10 +56,25 @@ nnoremap <esc>l <C-w>l
 
 let g:mapleader = ' '
 
-" nnoremap <leader>e <cmd>Ex<cr>
-nnoremap <leader>x <cmd>bd<cr>
-nnoremap <leader>X <cmd>bd!<cr>
 vnoremap <leader><leader> "yy/<C-r>y<cr>
+
+function! CopyVisualRangeToClipboard()
+  let start_line = line("'<")
+  let end_line   = line("'>")
+  normal! \<Esc>
+  let file_path = expand("%:p:~")
+  if start_line == end_line
+    let text = file_path . ":" . start_line
+  else
+    let text = file_path . ":" . start_line . "," . end_line
+  endif
+  let @+ = text
+  echo "Copied: " . text
+endfunction
+xnoremap <silent> Y :<c-u>call CopyVisualRangeToClipboard()<cr>
+nnoremap <silent> yp :let @+ = expand("%:p:~")<cr>
+
+au FileType qf 5wincmd _
 
 call plug#begin()
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -67,7 +90,8 @@ let g:fzf_vim = {}
 
 nnoremap <leader>, <cmd>Buffers<cr>
 nnoremap <leader>f <cmd>GFiles<cr>
-nnoremap <leader><leader> <cmd>Files %:h<cr>
+nnoremap <leader>sf <cmd>Files %:h<cr>
+nnoremap <leader>sg :Rg 
 
 let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
 

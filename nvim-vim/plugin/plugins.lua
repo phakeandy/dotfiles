@@ -11,7 +11,7 @@ vim.pack.add({
   'https://github.com/stevearc/oil.nvim',
   'https://github.com/mikavilpas/yazi.nvim',
 
-  'https://github.com/sphamba/smear-cursor.nvim',
+  -- 'https://github.com/sphamba/smear-cursor.nvim',
 
   'https://github.com/lervag/vimtex',
 
@@ -25,10 +25,10 @@ vim.pack.add({
 require('im_select').setup()
 require('guess-indent').setup()
 
-require('smear_cursor').setup({
-  cursor_color = '#52ad70', -- my terminal cursor color
-  time_interval = 7, -- milliseconds
-})
+-- require('smear_cursor').setup({
+--   cursor_color = '#52ad70', -- my terminal cursor color
+--   time_interval = 7, -- milliseconds
+-- })
 
 -- require('mini.align').setup() -- just use column
 require('mini.icons').setup()
@@ -61,6 +61,10 @@ nnoremap <leader>e <cmd>Yazi<cr>
 cabbrev Y Yazi
 cabbrev yy Yazi
 ]])
+
+-- require('smear_cursor').setup({
+--   cursor_color = "#d3cdc3"
+-- })
 
 vim.api.nvim_create_autocmd('PackChanged', {
   callback = function(ev)

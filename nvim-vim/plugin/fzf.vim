@@ -5,8 +5,8 @@ vim.pack.add({
 })
 EOF
 
-noremap <leader>f <cmd>Files<cr>
-noremap <localleader>f <cmd>BFiles<cr>
+noremap <leader>ff <cmd>Files<cr>
+noremap <leader>fF <cmd>BFiles<cr>
 noremap <leader>, <cmd>Buffers<cr>
 let opt = { 'window': 'call FloatingFZF()' }
 
@@ -33,7 +33,7 @@ function! FloatingFZF()
   let buf = nvim_create_buf(v:false, v:true)
   call setbufvar(buf, '&signcolumn', 'no')
 
-  let height = float2nr(10)
+  let height = float2nr(40)
   let width = float2nr(80)
   let horizontal = float2nr((&columns - width) / 2)
   let vertical = 1
