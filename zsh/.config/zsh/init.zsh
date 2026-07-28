@@ -80,7 +80,7 @@ precmd() {
         job_str="[${job_count}] "
     fi
 
-    PS1="%F{green}${job_str}%f%F{cyan}\$%f "
+    PS1="%S${job_str}\$%s "
 }
 
 # Alias
@@ -96,10 +96,6 @@ alias gss='git status -s' && compdef _git gss=git-status
 alias gst='git status' && compdef _git gst=git-status
 alias gls='git ls-files' && compdef _git gls=git-ls-files
 alias wip="git commit -v -m wip"
-
-if command -v fdfind > /dev/null 2>&1; then
-     alias fd=fdfind
-fi
 
 #if command -v nvim >/dev/null 2>&1; then
 #	export EDITOR="nvim"
@@ -120,6 +116,7 @@ fi
 
 export PATH=~/.local/bin:$PATH
 export PATH=~/bin:$PATH
+[ -d $HOME/go/bin ] && export PATH="$HOME/go/bin:$PATH"
 
 ffw() {
     local target

@@ -1,0 +1,4 @@
+#!/bin/bash
+# Dispatcher: f <lang> <type>  →  calls ff.<lang> <type>
+# e.g. f go s  →  ff.go s
+exec "$(dirname "$0")/ff.$1" "${@:2}"

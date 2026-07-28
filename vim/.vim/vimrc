@@ -57,6 +57,8 @@ nnoremap <esc>l <C-w>l
 let g:mapleader = ' '
 
 vnoremap <leader><leader> "yy/<C-r>y<cr>
+nnoremap <leader><leader> gggqG<c-o><c-o>zz
+nnoremap <BS> <cmd>make<cr>
 
 function! CopyVisualRangeToClipboard()
   let start_line = line("'<")
