@@ -57,8 +57,14 @@ nnoremap <esc>l <C-w>l
 let g:mapleader = ' '
 
 vnoremap <leader><leader> "yy/<C-r>y<cr>
-nnoremap <leader><leader> gggqG<c-o><c-o>zz
-nnoremap <BS> <cmd>make<cr>
+nnoremap <leader><leader> <cmd>w<cr>
+nnoremap <leader>f gggqG
+nnoremap + <cmd>make<cr>
+
+" augroup auto_format
+"   au!
+"   au BufWritePre *.go normal! gggqG
+" augroup END
 
 function! CopyVisualRangeToClipboard()
   let start_line = line("'<")
@@ -76,6 +82,7 @@ endfunction
 xnoremap <silent> Y :<c-u>call CopyVisualRangeToClipboard()<cr>
 nnoremap <silent> yp :let @+ = expand("%:p:~")<cr>
 
+" set quickfix height to 5
 au FileType qf 5wincmd _
 
 call plug#begin()
@@ -92,9 +99,6 @@ let g:fzf_vim = {}
 " let g:fzf_vim.preview_window = ['down,50%', 'ctrl-/']
 
 nnoremap <leader>, <cmd>Buffers<cr>
-nnoremap <leader>f <cmd>GFiles<cr>
-nnoremap <leader>sf <cmd>Files %:h<cr>
-nnoremap <leader>sg :Rg 
 
 let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
 

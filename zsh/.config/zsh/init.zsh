@@ -98,8 +98,8 @@ alias gls='git ls-files' && compdef _git gls=git-ls-files
 alias wip="git commit -v -m wip"
 
 #if command -v nvim >/dev/null 2>&1; then
-#	export EDITOR="nvim"
-#	export MANPAGER="nvim +Man!"
+#       export EDITOR="nvim"
+#       export MANPAGER="nvim +Man!"
 #fi
 
 alias e="$EDITOR"
@@ -110,6 +110,16 @@ if command -v fzf >/dev/null 2>&1; then
                              --border=none --preview-window=border-none \
                              --preview='cat {}' --preview-window hidden \
                              --bind 'ctrl-/:toggle-preview'"
+fi
+
+if command -v yazi >/dev/null 2>&1; then
+    function y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        command yazi "$@" --cwd-file="$tmp"
+        IFS= read -r -d '' cwd < "$tmp"
+        [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+        command rm -f -- "$tmp"
+    }
 fi
 
 [ -f $HOME/.apikeys ] && source $HOME/.apikeys
