@@ -11,8 +11,8 @@ bindkey -e  # emacs keybinding
 bindkey '\e[1;5C' forward-word   # ctrl + ->
 bindkey '\e[1;5D' backward-word  # ctrl + <-
 
-bindkey '\e[A' history-beginning-search-backward # <Up>
-bindkey '\e[B' history-beginning-search-forward
+bindkey '^P' history-beginning-search-backward # <Up>
+bindkey '^N' history-beginning-search-forward
 
 
 # History Settings
@@ -23,6 +23,10 @@ setopt histignoredups  # Remove duplicate history entries
 
 stty -ixon  # Disable Ctrl-S
 
+
+# Add zsh-completions to fpath BEFORE compinit so they get discovered
+# git clone --depth=1 https://github.com/zsh-users/zsh-completions ~/.local/opt/zsh-completions
+[ -d "$HOME/.local/opt/zsh-completions/src" ] && fpath=("$HOME/.local/opt/zsh-completions/src" $fpath)
 
 # Autoload is a zsh built-in command that handle lazy loading function in $fpath. 
 # `-U` is Unalias. `-z` is zsh style function formating.

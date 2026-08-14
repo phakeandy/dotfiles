@@ -1,8 +1,9 @@
 set number relativenumber
 set list listchars=tab:»\ ,trail:·,nbsp:␣,precedes:<,extends:>
-set wrap showbreak=↪\
+set wrap 
+" showbreak=->
 set splitbelow splitright
-set smartcase
+set ignorecase smartcase
 set smarttab smartindent
 set noerrorbells vb t_vb=		" 删除烦人的铃声和闪烁
 set hidden				" 允许在有未保存更改的情况下切换到其他缓冲区
@@ -33,6 +34,8 @@ set clipboard=unnamedplus
 
 nnoremap c "_c
 nnoremap Y y$
+nnoremap j gj
+nnoremap k gk
 
 " Linux ibus config
 " autocmd InsertLeave * silent! execute "!ibus engine xkb:us::eng" | redraw!
@@ -47,26 +50,30 @@ packadd! nohlsearch
 packadd! hlyank
 packadd! editorconfig
 packadd! editexisting
+packadd! cfilter
+packadd! comment
 
 " In vim, use esc to map <m-x>
-nnoremap <esc>h <C-w>h
-nnoremap <esc>j <C-w>j
-nnoremap <esc>k <C-w>k
-nnoremap <esc>l <C-w>l
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
 
 let g:mapleader = ' '
 
-vnoremap <leader><leader> "yy/<C-r>y<cr>
+xnoremap * "yy/<C-r>y<cr>
+xnoremap # "yy?<C-r>y<cr>
 nnoremap <leader><leader> <cmd>w<cr>
 nnoremap <leader>f gggqG
 nnoremap + <cmd>make<cr>
 
-" augroup auto_format
-"   au!
-"   au BufWritePre *.go normal! gggqG
-" augroup END
+" Quickfix
+noremap <leader>c <cmd>cw<cr>
+noremap <leader>C <cmd>cclose<cr>
+nnoremap ]q :cnext<cr>
+nnoremap [q :cprev<cr>
 
-function! CopyVisualRangeToClipboard()
+function! CopyVisualButNoContent()
   let start_line = line("'<")
   let end_line   = line("'>")
   normal! \<Esc>
@@ -79,27 +86,45 @@ function! CopyVisualRangeToClipboard()
   let @+ = text
   echo "Copied: " . text
 endfunction
-xnoremap <silent> Y :<c-u>call CopyVisualRangeToClipboard()<cr>
-nnoremap <silent> yp :let @+ = expand("%:p:~")<cr>
+xnoremap <silent> Y :<c-u>call CopyVisualButNoContent()<cr>
+nnoremap <silent> <leader>yp :let @+ = expand("%:p:~")<cr>
+
+nnoremap <leader>x :terminal ++curwin 
+nnoremap <leader>X :below terminal 
+nnoremap <leader>q <cmd>quit<cr>
+nnoremap <leader>d <cmd>bd<cr>
+nnoremap <leader>w <cmd>write<cr>
+nnoremap <leader>b :ls<cr>:b 
 
 " set quickfix height to 5
-au FileType qf 5wincmd _
+au FileType qf 6wincmd _
 
 call plug#begin()
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
-Plug 'tpope/vim-commentary'
+" Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-sleuth'  " Automatically adjusts tab settings
 Plug 'tpope/vim-vinegar'
+
+Plug 'tpope/vim-repeat'
+Plug 'kkew3/jieba.vim', { 'branch': 'release', 'do': { -> jieba_vim#install() } }
 call plug#end()
 
 let g:fzf_vim = {}
 " let g:fzf_vim.preview_window = ['down,50%', 'ctrl-/']
 
-nnoremap <leader>, <cmd>Buffers<cr>
+map s <nop>
+noremap sf :Files 
+noremap sF :GFiles 
+noremap sg :Rg 
+noremap sL :Lines 
+noremap sl :BLines 
+noremap sh :History<cr>
+nnoremap sb :Buffers<cr>
 
 let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
-
 let g:netrw_banner = 0 " Hide the banner
+
+let g:jieba_vim_keymap = 1

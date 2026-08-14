@@ -1,8 +1,12 @@
+.toc
+
+# Enviroment
 .envrc
 .env
 
 # Agent
 **/.claude/settings.local.json
+AGENTS.md
 
 # Editor
 .nvim.lua
@@ -14,3 +18,4 @@
 # ctags
 tags
 *.tags
+
