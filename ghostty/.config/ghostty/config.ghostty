@@ -1,7 +1,11 @@
 gtk-titlebar = false
 font-family = "Iosevka Nerd Font Mono"
 font-family = "Noto Sans CJK SC"
-font-size = 14
+font-feature = -calt, -liga, -dlig
+font-size = 12
+# TODO: not work
+window-inherit-font-size = false
+keybind  = ctrl+0=set_font_size:12
 
 cursor-style = block
 cursor-style-blink = false
@@ -10,12 +14,20 @@ shell-integration-features = no-cursor
 
 mouse-hide-while-typing = true
 
-keybind = alt+h=goto_split:left
-keybind = alt+j=goto_split:bottom
-keybind = alt+k=goto_split:top
-keybind = alt+l=goto_split:right
-keybind = alt+o=toggle_split_zoom
+#keybind = alt+h=goto_split:left
+#keybind = alt+j=goto_split:bottom
+#keybind = alt+k=goto_split:top
+#keybind = alt+l=goto_split:right
 
+#ghossty has no alt_send_esc config.
+keybind = alt+a=esc:a
+keybind = alt+i=esc:i
+keybind = alt+i=esc:i
+keybind = alt+h=esc:h
+keybind = alt+j=esc:j
+keybind = alt+k=esc:k
+keybind = alt+l=esc:l
+keybind = alt+shift+o=esc:O
 
 foreground=#ffffff
 background=#000000

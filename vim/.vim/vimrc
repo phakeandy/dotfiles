@@ -1,7 +1,6 @@
-set number relativenumber
-set list listchars=tab:»\ ,trail:·,nbsp:␣,precedes:<,extends:>
-set wrap 
-" showbreak=->
+set number "relativenumber
+" set list listchars=tab:»\ ,trail:·,nbsp:␣,precedes:<,extends:>
+set wrap
 set splitbelow splitright
 set ignorecase smartcase
 set smarttab smartindent
@@ -17,7 +16,8 @@ set exrc
 filetype plugin indent on
 
 set background=dark
-colorscheme my-lunaperche
+" colorscheme habamax
+colorscheme retrobox
 
 set clipboard=unnamedplus
 " WSL clipboard config
@@ -54,17 +54,17 @@ packadd! cfilter
 packadd! comment
 
 " In vim, use esc to map <m-x>
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+" nnoremap <C-h> <C-w>h
+" nnoremap <C-j> <C-w>j
+" nnoremap <C-k> <C-w>k
+" nnoremap <C-l> <C-w>l
 
 let g:mapleader = ' '
 
 xnoremap * "yy/<C-r>y<cr>
 xnoremap # "yy?<C-r>y<cr>
-nnoremap <leader><leader> <cmd>w<cr>
-nnoremap <leader>f gggqG
+" nnoremap <leader><leader> :
+let @f = "gggqG"
 nnoremap + <cmd>make<cr>
 
 " Quickfix
@@ -87,7 +87,7 @@ function! CopyVisualButNoContent()
   echo "Copied: " . text
 endfunction
 xnoremap <silent> Y :<c-u>call CopyVisualButNoContent()<cr>
-nnoremap <silent> <leader>yp :let @+ = expand("%:p:~")<cr>
+nnoremap <silent> yp :let @+ = expand("%:p:~")<cr>
 
 nnoremap <leader>x :terminal ++curwin 
 nnoremap <leader>X :below terminal 
@@ -106,25 +106,59 @@ Plug 'junegunn/fzf.vim'
 " Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-sleuth'  " Automatically adjusts tab settings
-Plug 'tpope/vim-vinegar'
+" Plug 'tpope/vim-vinegar'
+Plug 'chriszarate/yazi.vim'
+
+Plug 'SirVer/ultisnips'
+Plug 'adriaanzon/vim-emmet-ultisnips'
+
+Plug 'voldikss/vim-translator'
 
 Plug 'tpope/vim-repeat'
 Plug 'kkew3/jieba.vim', { 'branch': 'release', 'do': { -> jieba_vim#install() } }
+
+Plug 'lervag/vimtex'
 call plug#end()
 
 let g:fzf_vim = {}
 " let g:fzf_vim.preview_window = ['down,50%', 'ctrl-/']
 
-map s <nop>
-noremap sf :Files 
-noremap sF :GFiles 
-noremap sg :Rg 
-noremap sL :Lines 
-noremap sl :BLines 
-noremap sh :History<cr>
-nnoremap sb :Buffers<cr>
+nnoremap <leader>sf :Files 
+nnoremap <leader>f <cmd>Files<cr>
+nnoremap <leader>sF :GFiles 
+nnoremap <leader>sg :Rg 
+nnoremap <leader>r <cmd>Rg<cr>
+nnoremap <leader>sl :BLines 
+nnoremap <leader>l <cmd>BLines<cr>
+nnoremap <leader>sL :Lines 
+nnoremap <leader>sh :History<cr>
+nnoremap <leader>, :Buffers<cr>
+
+nnoremap <leader>g <cmd>G ++curwin<cr>
+
+nnoremap <silent> - :Yazi<cr>
+nnoremap <silent> _ :YaziWorkingDirectory<cr>
+
+nnoremap <silent> <Leader>t <Plug>Translate
+vnoremap <silent> <Leader>t <Plug>TranslateV
 
 let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
 let g:netrw_banner = 0 " Hide the banner
 
 let g:jieba_vim_keymap = 1
+
+
+function! s:Translate() range
+  let l:text = join(getline(a:firstline, a:lastline), "\n")
+  let l:out  = systemlist('trans', l:text)
+  if empty(l:out)
+    let l:out = ['']
+  endif
+
+  execute 'vertical rightbelow new'
+  setlocal buftype=nofile bufhidden=wipe noswapfile
+  call setline(1, l:out)
+  file DeepSeek_Translate
+endfunction
+
+vnoremap <silent> <leader>t :call <SID>Translate()<CR>

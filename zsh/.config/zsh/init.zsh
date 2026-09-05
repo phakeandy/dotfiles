@@ -11,8 +11,8 @@ bindkey -e  # emacs keybinding
 bindkey '\e[1;5C' forward-word   # ctrl + ->
 bindkey '\e[1;5D' backward-word  # ctrl + <-
 
-bindkey '^P' history-beginning-search-backward # <Up>
-bindkey '^N' history-beginning-search-forward
+bindkey "${terminfo[kcuu1]}" history-beginning-search-backward   # UP
+bindkey "${terminfo[kcud1]}" history-beginning-search-forward    # DONW
 
 
 # History Settings

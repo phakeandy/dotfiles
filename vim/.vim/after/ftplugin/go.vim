@@ -5,4 +5,7 @@ if executable('goimports')
 endif
 setlocal formatexpr=
 
-setlocal makeprg=go\ build
+" setlocal makeprg=go\ build
+
+nnoremap <buffer> <localleader>sf <cmd>Rg ^func<cr>
+nnoremap <buffer> <localleader>r <cmd>terminal ++curwin go run %<cr>

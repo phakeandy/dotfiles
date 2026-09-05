@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# ~/bin/dict  —— 绑到你的合成器快捷键
+set -euo pipefail
+MODEL="$HOME/src/whisper.cpp/models/ggml-base.bin"
+WHISPER="$HOME/src/whisper.cpp/build/bin/whisper-cli"
+REC="/tmp/dict.wav"; FLAG="/tmp/dict.pid"
+
+if [ -f "$FLAG" ]; then
+    kill "$(cat "$FLAG")" 2>/dev/null || true; rm -f "$FLAG"; sleep 0.4
+    "$WHISPER" -m "$MODEL" -f "$REC" -l zh -t 8 -otxt -of /tmp/dict 2>/dev/null
+    cat /tmp/dict.txt | wl-copy
+    echo "copied -> clipboard"
+else
+    : > "$REC"
+    ffmpeg -y -f pulse -i default -ac 1 -ar 16000 "$REC" >/dev/null 2>&1 &
+    echo $! > "$FLAG"; echo "recording..."
+fi

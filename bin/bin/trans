@@ -1,0 +1,58 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "openai>=1.30",
+# ]
+# ///
+
+import os
+import sys
+from openai import OpenAI
+
+SYSTEM_PROMPT = "Translate to Chinese.  DO NOT output any description, and explaination."
+
+DEFAULT_BASE_URL = "https://api.deepseek.com"
+DEFAULT_MODEL = "deepseek-v4-flash"
+
+
+def main() -> int:
+    api_key = os.environ.get("DEEPSEEK_APIKEY")
+    if not api_key:
+        print("错误：未设置 DEEPSEEK_API_KEY 环境变量。", file=sys.stderr)
+        return 1
+
+    model = os.environ.get("DEEPSEEK_MODEL", DEFAULT_MODEL)
+    base_url = os.environ.get("DEEPSEEK_BASE_URL", DEFAULT_BASE_URL)
+    system_prompt = os.environ.get("SYSTEM_PROMPT", SYSTEM_PROMPT)
+
+    prompt = sys.argv[1] if len(sys.argv) > 1 else sys.stdin.read()
+    if not prompt.strip():
+        print("错误：标准输入（stdin）没有内容。", file=sys.stderr)
+        return 1
+
+    client = OpenAI(api_key=api_key, base_url=base_url)
+
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            reasoning_effort="none",
+        )
+    except Exception as exc:
+        print(f"请求失败：{exc}", file=sys.stderr)
+        return 1
+
+    content = response.choices[0].message.content
+    if content is not None:
+        print(content)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
