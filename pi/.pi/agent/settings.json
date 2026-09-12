@@ -1,0 +1,21 @@
+{
+  "lastChangelogVersion": "0.85.1",
+  "theme": "dark",
+  "defaultProvider": "deepseek",
+  "defaultModel": "deepseek-v4-flash",
+  "defaultThinkingLevel": "high",
+  "outputPad": 1,
+  "hideThinkingBlock": true,
+  "packages": [
+    "npm:pi-web-access",
+    "https://github.com/ayghri/i-have-adhd",
+    "npm:pi-claude-bridge"
+  ],
+  "terminal": {
+    "clearOnShrink": false,
+    "showTerminalProgress": true,
+    "imageWidthCells": 60
+  },
+  "tuiMode": "fullscreen",
+  "editorPaddingX": 0
+}
