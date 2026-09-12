@@ -1,0 +1,20 @@
+ffd() {
+    local target
+    target=$(find ~/dotfiles -type f | fzf)
+    if [[ -n "$target" ]]; then
+        $EDITOR "$target"
+    fi
+}
+
+ffw() {
+    local target
+    target=$(ls ~/workspace/ | fzf | xargs -I{} realpath ~/workspace/{})
+    echo "$target"
+    cd "$target"
+}
+
+a() {
+    pi --provider deepseek --model deepseek-flash \
+       --thinking high \
+       --tui-mode fullscreen "$@"
+}

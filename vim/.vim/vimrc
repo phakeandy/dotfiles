@@ -1,4 +1,4 @@
-set number "relativenumber
+set number relativenumber
 " set list listchars=tab:»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set wrap
 set splitbelow splitright
@@ -32,7 +32,7 @@ set clipboard=unnamedplus
 " some version vim doesn't hava Wayland support
 " nnoremap <C-@> :call system("wl-copy", @")<CR>
 
-nnoremap c "_c
+" nnoremap c "_c
 nnoremap Y y$
 nnoremap j gj
 nnoremap k gk
@@ -63,9 +63,11 @@ let g:mapleader = ' '
 
 xnoremap * "yy/<C-r>y<cr>
 xnoremap # "yy?<C-r>y<cr>
-" nnoremap <leader><leader> :
+" nnoremap <leader>, <cmd
 let @f = "gggqG"
-nnoremap + <cmd>make<cr>
+" ALWAYS use M
+nnoremap <leader>m <cmd>make<cr>
+tnoremap <Esc><Esc> <C-\><C-n>
 
 " Quickfix
 noremap <leader>c <cmd>cw<cr>
@@ -133,6 +135,7 @@ nnoremap <leader>l <cmd>BLines<cr>
 nnoremap <leader>sL :Lines 
 nnoremap <leader>sh :History<cr>
 nnoremap <leader>, :Buffers<cr>
+nnoremap <C-l> :Buffers<cr>
 
 nnoremap <leader>g <cmd>G ++curwin<cr>
 
@@ -140,7 +143,6 @@ nnoremap <silent> - :Yazi<cr>
 nnoremap <silent> _ :YaziWorkingDirectory<cr>
 
 nnoremap <silent> <Leader>t <Plug>Translate
-vnoremap <silent> <Leader>t <Plug>TranslateV
 
 let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
 let g:netrw_banner = 0 " Hide the banner
@@ -149,16 +151,12 @@ let g:jieba_vim_keymap = 1
 
 
 function! s:Translate() range
-  let l:text = join(getline(a:firstline, a:lastline), "\n")
-  let l:out  = systemlist('trans', l:text)
-  if empty(l:out)
-    let l:out = ['']
-  endif
-
-  execute 'vertical rightbelow new'
-  setlocal buftype=nofile bufhidden=wipe noswapfile
-  call setline(1, l:out)
-  file DeepSeek_Translate
+  let l:tmp = tempname()
+  call writefile(getline(a:firstline, a:lastline), l:tmp)
+  " 40 -> 1 chinese char == 2 english char
+  " execute 'vert terminal ++cols=40 trans -f ' . l:tmp
+  execute 'terminal ++curwin trans -f ' . l:tmp
+  setlocal nonumber norelativenumber
 endfunction
 
 vnoremap <silent> <leader>t :call <SID>Translate()<CR>

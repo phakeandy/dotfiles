@@ -15,20 +15,49 @@ SYSTEM_PROMPT = "Translate to Chinese.  DO NOT output any description, and expla
 DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-v4-flash"
 
-
 def main() -> int:
     api_key = os.environ.get("DEEPSEEK_APIKEY")
     if not api_key:
-        print("错误：未设置 DEEPSEEK_API_KEY 环境变量。", file=sys.stderr)
+        print("ERROR: 未设置 DEEPSEEK_API_KEY 环境变量。", file=sys.stderr)
         return 1
 
     model = os.environ.get("DEEPSEEK_MODEL", DEFAULT_MODEL)
     base_url = os.environ.get("DEEPSEEK_BASE_URL", DEFAULT_BASE_URL)
     system_prompt = os.environ.get("SYSTEM_PROMPT", SYSTEM_PROMPT)
 
-    prompt = sys.argv[1] if len(sys.argv) > 1 else sys.stdin.read()
+    prompt = ""
+    filepath = None
+    positional = []
+    args = sys.argv[1:]
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a in ("-f", "--file"):
+            if i + 1 >= len(args):
+                print("ERROR: -f/--file 需要一个文件名。", file=sys.stderr)
+                return 1
+            filepath = args[i + 1]
+            i += 2
+        elif a.startswith("--file="):
+            filepath = a[len("--file="):]
+            i += 1
+        else:
+            positional.append(a)
+            i += 1
+
+    if filepath is not None:
+        try:
+            with open(filepath, encoding="utf-8") as fh:
+                prompt = fh.read()
+        except OSError as exc:
+            print(f"ERROR: 无法读取文件 {filepath}：{exc}", file=sys.stderr)
+            return 1
+    elif positional:
+        prompt = positional[0]
+    else:
+        prompt = sys.stdin.read()    
     if not prompt.strip():
-        print("错误：标准输入（stdin）没有内容。", file=sys.stderr)
+        print("ERROR: Input 为空", file=sys.stderr)
         return 1
 
     client = OpenAI(api_key=api_key, base_url=base_url)

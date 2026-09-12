@@ -17,8 +17,8 @@ bindkey "${terminfo[kcud1]}" history-beginning-search-forward    # DONW
 
 # History Settings
 HISTFILE=~/.zsh_history  # zsh has no built-in default value for HISTFILE, so we set explicitly.
-HISTSIZE=10000  # the maximum number of history entries loaded into the shell's active memory during a session
-SAVEHIST=10000  # the maximum number of lines written to history file (here is ~/.zsh_history)
+HISTSIZE=50000  # the maximum number of history entries loaded into the shell's active memory during a session
+SAVEHIST=50000  # the maximum number of lines written to history file (here is ~/.zsh_history)
 setopt histignoredups  # Remove duplicate history entries
 
 stty -ixon  # Disable Ctrl-S
@@ -106,8 +106,6 @@ alias wip="git commit -v -m wip"
 #       export MANPAGER="nvim +Man!"
 #fi
 
-alias e="$EDITOR"
-
 if command -v fzf >/dev/null 2>&1; then
     eval "$(fzf --zsh)"
     export FZF_DEFAULT_OPTS="--height 70% --layout=reverse --color=pointer:12 \
@@ -116,34 +114,20 @@ if command -v fzf >/dev/null 2>&1; then
                              --bind 'ctrl-/:toggle-preview'"
 fi
 
-if command -v yazi >/dev/null 2>&1; then
-    function y() {
-        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-        command yazi "$@" --cwd-file="$tmp"
-        IFS= read -r -d '' cwd < "$tmp"
-        [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
-        command rm -f -- "$tmp"
-    }
-fi
-
 [ -f $HOME/.apikeys ] && source $HOME/.apikeys
 
 export PATH=~/.local/bin:$PATH
 export PATH=~/bin:$PATH
 [ -d $HOME/go/bin ] && export PATH="$HOME/go/bin:$PATH"
 
-ffw() {
-    local target
-    target=$(ls ~/workspace/ | fzf | xargs -I{} realpath ~/workspace/{})
-    echo "$target"
-    cd "$target"
+
+# yazi
+function y() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    command yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd < "$tmp"
+    [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+    command rm -f -- "$tmp"
 }
 
-
-ffd() {
-    local target
-    target=$(find ~/dotfiles -type f | fzf)
-    if [[ -n "$target" ]]; then
-        $EDITOR "$target"
-    fi
-}
+[ -f "$HOME/.config/zsh/function.sh" ] && source "$HOME/.config/zsh/function.sh"

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -xe
+
+nohup npx @deepseek-ai/dsh --profile web >/tmp/dsh.log 2>&1 &
