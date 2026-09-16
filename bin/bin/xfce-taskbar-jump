@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""按任务栏按钮顺序跳到第 N 个窗口（模拟 Windows 的 Win+数字）。
+
+用法: xfce-taskbar-jump 1
+
+复现 xfce4-panel 任务栏插件的排序和分组规则，所以序号和你眼睛看到的
+按钮位置一致：
+
+  - 排序按「应用类名字母序 + 打开时间」，不是窗口创建顺序
+    （_NET_CLIENT_LIST 是创建顺序，直接用它会错位）
+  - 任务栏开了分组时，同一应用的多个窗口折叠成一个按钮，只占一个序号
+  - 只算当前工作区，任务栏也只显示当前工作区
+
+按钮上只有一个窗口时，再按一次同一个数字会最小化它。
+按钮是折叠的分组时，重复按会在组内循环切换。
+
+只依赖 python3-gi + gir1.2-wnck-3.0，都是 XFCE 桌面自带的
+（任务栏插件本身就用 libwnck）。
+"""
+
+import subprocess
+import sys
+
+import gi
+
+gi.require_version("Wnck", "3.0")
+gi.require_version("Gdk", "3.0")
+gi.require_version("GdkX11", "3.0")
+from gi.repository import Gdk, GdkX11, Wnck  # noqa: E402
+
+PANEL_CHANNEL = "xfce4-panel"
+
+
+def xfconf(prop, default=None):
+    """读一个 xfce4-panel 的配置项，读不到就返回 default。"""
+    try:
+        out = subprocess.run(
+            ["xfconf-query", "-c", PANEL_CHANNEL, "-p", prop],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return default
+    return out.stdout.strip() if out.returncode == 0 else default
+
+
+def tasklist_settings():
+    """找到任务栏插件，返回 (是否分组, 排序方式)。"""
+    plugins = subprocess.run(
+        ["xfconf-query", "-c", PANEL_CHANNEL, "-p", "/plugins", "-l", "-v"],
+        capture_output=True,
+        text=True,
+    ).stdout
+
+    plugin = None
+    for line in plugins.splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[1] == "tasklist":
+            plugin = parts[0]
+            break
+    if plugin is None:
+        return True, 1  # 找不到就用 XFCE 的默认值
+
+    grouping = xfconf(f"{plugin}/grouping", "1")
+    # sort-order 默认 1 = 按组标题+时间戳，也就是应用名字母序
+    sort_order = xfconf(f"{plugin}/sort-order", "1")
+
+    grouped = grouping not in ("0", "false", "FALSE")
+    try:
+        sort_order = int(sort_order)
+    except ValueError:
+        sort_order = 1
+    return grouped, sort_order
+
+
+def group_key(win):
+    """任务栏拿来分组和排序的标识，等价于 WM_CLASS 的 res_class。"""
+    cg = win.get_class_group()
+    name = cg.get_id() if cg else None
+    return (name or win.get_name() or "").casefold()
+
+
+def taskbar_buttons(screen):
+    """返回任务栏上的按钮列表，每个按钮是一组窗口，顺序与屏幕一致。"""
+    active_ws = screen.get_active_workspace()
+    windows = [
+        w
+        for w in screen.get_windows()
+        if not w.is_skip_tasklist() and w.is_on_workspace(active_ws)
+    ]
+
+    grouped, sort_order = tasklist_settings()
+
+    # get_windows() 已经是打开时间顺序，稳定排序后组内自然还是按时间排
+    # sort-order 2/3 是按窗口标题排，其余情况都按应用类名排
+    if sort_order in (2, 3):
+        windows.sort(key=lambda w: (w.get_name() or "").casefold())
+    else:
+        windows.sort(key=group_key)
+
+    if not grouped:
+        return [[w] for w in windows]
+
+    buttons = []
+    for w in windows:
+        if buttons and group_key(buttons[-1][0]) == group_key(w):
+            buttons[-1].append(w)
+        else:
+            buttons.append([w])
+    return buttons
+
+
+def pick(group, active):
+    """决定这次该激活组里的哪个窗口，没有就返回 None 表示该最小化。"""
+    if active not in group:
+        return group[0]
+    if len(group) == 1:
+        return None  # 单窗口按钮：再按一次就最小化
+    return group[(group.index(active) + 1) % len(group)]
+
+
+def main():
+    try:
+        n = int(sys.argv[1])
+    except (IndexError, ValueError):
+        sys.exit("用法: xfce-taskbar-jump <序号，从 1 开始>")
+
+    screen = Wnck.Screen.get_default()
+    screen.force_update()
+
+    buttons = taskbar_buttons(screen)
+    if not 1 <= n <= len(buttons):
+        return
+
+    active = screen.get_active_window()
+    target = pick(buttons[n - 1], active)
+
+    if target is None:
+        active.minimize()
+        return
+
+    # 时间戳必须来自 X server，否则窗口管理器会拒绝这次抢焦点
+    timestamp = GdkX11.x11_get_server_time(Gdk.get_default_root_window())
+    if target.is_minimized():
+        target.unminimize(timestamp)
+    target.activate(timestamp)
+
+
+if __name__ == "__main__":
+    main()

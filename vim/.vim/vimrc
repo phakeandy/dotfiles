@@ -1,13 +1,11 @@
 set number relativenumber
-" set list listchars=tab:»\ ,trail:·,nbsp:␣,precedes:<,extends:>
-set wrap
+set wrap linebreak breakindent
 set splitbelow splitright
 set ignorecase smartcase
 set smarttab smartindent
 set noerrorbells vb t_vb=		" 删除烦人的铃声和闪烁
 set hidden				" 允许在有未保存更改的情况下切换到其他缓冲区
 set hlsearch				" 高亮搜索结果
-" set autochdir
 set foldmethod=indent foldlevel=1000
 set formatoptions+=Mm " include the chinese charactor
 set grepprg=rg\ --vimgrep\ --no-heading
@@ -17,7 +15,9 @@ filetype plugin indent on
 
 set background=dark
 " colorscheme habamax
-colorscheme retrobox
+" colorscheme retrobox
+colorscheme default
+au ColorScheme default highlight! link LineNr Comment
 
 set clipboard=unnamedplus
 " WSL clipboard config
@@ -95,7 +95,9 @@ nnoremap <leader>x :terminal ++curwin
 nnoremap <leader>X :below terminal 
 nnoremap <leader>q <cmd>quit<cr>
 nnoremap <leader>d <cmd>bd<cr>
-nnoremap <leader>w <cmd>write<cr>
+nnoremap <C-s> <cmd>write<cr>
+nnoremap <M-z> <cmd>set wrap columns=80<cr>
+nnoremap <leader>z <cmd>set wrap columns=80<cr>
 nnoremap <leader>b :ls<cr>:b 
 
 " set quickfix height to 5
@@ -117,6 +119,7 @@ Plug 'adriaanzon/vim-emmet-ultisnips'
 Plug 'voldikss/vim-translator'
 
 Plug 'tpope/vim-repeat'
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'kkew3/jieba.vim', { 'branch': 'release', 'do': { -> jieba_vim#install() } }
 
 Plug 'lervag/vimtex'
