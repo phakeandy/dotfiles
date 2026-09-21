@@ -98,12 +98,16 @@ nnoremap <leader>d <cmd>bd<cr>
 nnoremap <C-s> <cmd>write<cr>
 nnoremap <M-z> <cmd>set wrap columns=80<cr>
 nnoremap <leader>z <cmd>set wrap columns=80<cr>
+nnoremap zl 10zl
+nnoremap zh 10zh
+nnoremap <leader>b :ls<cr>:b 
 nnoremap <leader>b :ls<cr>:b 
 
 " set quickfix height to 5
 au FileType qf 6wincmd _
 
 call plug#begin()
+Plug 'prabirshrestha/vim-lsp'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
@@ -124,6 +128,29 @@ Plug 'kkew3/jieba.vim', { 'branch': 'release', 'do': { -> jieba_vim#install() } 
 
 Plug 'lervag/vimtex'
 call plug#end()
+
+if executable('gopls')
+  let g:lsp_diagnostics_signs_enabled = 0
+  let g:lsp_diagnostics_virtual_text_enabled = 0
+  let g:lsp_diagnostics_highlights_enabled = 0
+
+  autocmd User lsp_setup call lsp#register_server({
+        \ 'name': 'gopls',
+        \ 'cmd': {server_info -> ['gopls']},
+        \ 'allowlist': ['go'],
+        \ })
+
+  autocmd FileType go setlocal omnifunc=lsp#complete signcolumn=no
+  autocmd FileType go nmap <buffer> gd <plug>(lsp-definition)
+  autocmd FileType go nmap <buffer> gr <plug>(lsp-references)
+  autocmd FileType go nmap <buffer> K <plug>(lsp-hover)
+  autocmd FileType go nmap <buffer> <leader>rn <plug>(lsp-rename)
+  autocmd FileType go nmap <buffer> <leader>a <plug>(lsp-code-action)
+  autocmd FileType go nmap <buffer> [d <plug>(lsp-previous-diagnostic)
+  autocmd FileType go nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+  autocmd FileType go nmap <buffer> <leader>ld <plug>(lsp-document-diagnostics)
+  autocmd FileType go nmap <buffer> <leader>lf <plug>(lsp-document-format)
+endif
 
 let g:fzf_vim = {}
 " let g:fzf_vim.preview_window = ['down,50%', 'ctrl-/']
