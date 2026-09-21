@@ -30,7 +30,8 @@ keybind = alt+k=esc:k
 keybind = alt+l=esc:l
 keybind = alt+shift+o=esc:O
 
-theme = Gruvbox Dark
+#theme = Gruvbox Dark
+theme = TokyoNight
 #foreground=#ffffff
 #background=#000000
 #background-opacity=1.0
