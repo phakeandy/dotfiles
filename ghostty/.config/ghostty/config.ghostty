@@ -8,8 +8,13 @@ window-inherit-font-size = false
 keybind  = ctrl+0=set_font_size:12
 
 cursor-style = block
-cursor-style-blink = false
-#mouse-scroll-multiplier = 0.8
+cursor-style-blink = true
+
+# Neovide-like smooth cursor movement.
+custom-shader = shaders/cursor_sweep.glsl
+custom-shader-animation = true
+
+# mouse-scroll-multiplier = 0.8
 shell-integration-features = no-cursor
 
 mouse-hide-while-typing = true
