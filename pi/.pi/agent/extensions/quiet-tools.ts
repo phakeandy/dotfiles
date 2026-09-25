@@ -93,7 +93,7 @@ type Theme = any;
 type Builtin = Record<string, unknown> & { execute: (...a: any[]) => any };
 
 interface Renderers {
-	call: (args: any, theme: Theme) => string;
+	call: (args: any, theme: Theme, context?: { expanded?: boolean }) => string;
 	/** 返回 null 表示折叠态不显示任何东西。错误不经过这里，见 defineTool。 */
 	result: (text: string, theme: Theme) => string | null;
 }
@@ -117,8 +117,8 @@ function defineTool(create: (cwd: string) => Builtin, render: Renderers) {
 		async execute(toolCallId: string, params: any, signal: any, onUpdate: any, ctx: any) {
 			return get(ctx.cwd).execute(toolCallId, params, signal, onUpdate, ctx);
 		},
-		renderCall(args: any, theme: Theme) {
-			return new Text(render.call(args ?? {}, theme), 0, 0);
+		renderCall(args: any, theme: Theme, context?: { expanded?: boolean }) {
+			return new Text(render.call(args ?? {}, theme, context), 0, 0);
 		},
 		renderResult(
 			result: ToolResult,
@@ -200,9 +200,10 @@ export default function quietTools(pi: ExtensionAPI) {
 	// --- bash ---------------------------------------------------------------
 	pi.registerTool(
 		defineTool(createBashTool, {
-			call: (a, t) => {
+			call: (a, t, context) => {
 				const timeout = a.timeout ? t.fg("dim", ` (timeout ${a.timeout}s)`) : "";
-				return `${t.fg("toolTitle", t.bold("bash"))} ${t.fg("toolOutput", briefCommand(a.command ?? ""))}${timeout}`;
+				const command = context?.expanded ? (a.command ?? "") : briefCommand(a.command ?? "");
+				return `${t.fg("toolTitle", t.bold("bash"))} ${t.fg("toolOutput", command)}${timeout}`;
 			},
 			result: shortOutputOrCount,
 		}),
