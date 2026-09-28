@@ -8,7 +8,7 @@ return {
     { '<leader>sF', '<cmd>FzfLua git_files<cr>', desc = 'Find Git files' },
     { '<leader>r', '<cmd>FzfLua grep<cr>', desc = 'Live grep' },
     { '<leader>,', '<cmd>FzfLua buffers<cr>', desc = 'Buffers' },
-    -- { '<C-l>', '<cmd>FzfLua blines<cr>', desc = 'Search open buffer lines' },
+    { '<leader>sl', '<cmd>FzfLua blines<cr>', desc = 'Search open buffer lines' },
   },
   opts = {
     'fzf-vim',

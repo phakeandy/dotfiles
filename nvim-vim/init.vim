@@ -24,10 +24,13 @@ function! CopyVisualRangeToClipboard()
   let @+ = text
 endfunction
 vnoremap <silent> <leader>y :call CopyVisualRangeToClipboard()<CR>
+nnoremap <silent> <leader>yp :let @+ = expand("%:p:~")<cr>
+nnoremap <silent> <leader>yy :let @+ = expand("%:p:~") . ":" . line(".")<cr>
 
 set number relativenumber
 set clipboard=unnamedplus
-set linebreak breakindent
+set breakindent
+set formatoptions+=Mm " include the chinese charactor
 set grepprg=rg\ --vimgrep\ --no-heading
 set path+=**
 set wildignore+=*/node_modules/*,*/.git/*,*/.svn/*
@@ -39,6 +42,8 @@ EOF
 set ignorecase
 set foldmethod=indent foldlevel=99
 set cursorline
+" Keep a blinking block cursor in every Neovim mode.
+set guicursor=a:block-blinkwait500-blinkon500-blinkoff500
 "set cmdheight=0 laststatus=3 statusline=
 set noshowmode
 set wrap
@@ -46,8 +51,9 @@ set exrc
 set splitright splitbelow
 set smarttab smartindent
 set formatoptions+=Mm " include the chinese charactor
-set list listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
+set listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set completeopt=longest,menuone,popup pumheight=6
+set mousescroll=ver:1 " For Ghosstty's bug: https://github.com/ghostty-org/ghostty/discussions/3955?utm_source=chatgpt.com
 
 lua << EOF
 vim.diagnostic.config({
@@ -56,7 +62,9 @@ vim.diagnostic.config({
   signs = false,
   --underline = { severity = { min = vim.diagnostic.severity.ERROR } },
 })
+EOF
 
+lua << EOF
 vim.keymap.set('n', '<leader>ld', function()
   local filter = { bufnr = 0 }
   local enabled = not vim.diagnostic.is_enabled(filter)
@@ -69,6 +77,23 @@ vim.keymap.set('n', '<leader>lD', function()
   vim.diagnostic.enable(enabled)
   vim.notify('Diagnostics ' .. (enabled and 'enabled' or 'disabled') .. ' globally')
 end, { desc = 'Toggle diagnostics globally' })
+EOF
+
+lua << EOF
+local columns_before_wrap
+vim.keymap.set('n', '<M-z>', function()
+  if vim.wo.wrap then
+    vim.wo.wrap = false
+    if columns_before_wrap then
+      vim.o.columns = columns_before_wrap
+      columns_before_wrap = nil
+    end
+  else
+    columns_before_wrap = vim.o.columns
+    vim.wo.wrap = true
+    vim.o.columns = 80
+  end
+end, { desc = 'Toggle wrap and columns 80' })
 EOF
 
 "lua require('vim._core.ui2').enable()
@@ -98,7 +123,7 @@ augroup END
 
 augroup YankHighlight
   autocmd!
-  autocmd TextYankPost * lua vim.hl.on_yank({ higroup = 'Visual', timeout = 300 })
+  autocmd TextYankPost * lua vim.hl.hl_op({ higroup = 'IncSearch', timeout = 300 })
 augroup END
 
 " 禁用 netrw

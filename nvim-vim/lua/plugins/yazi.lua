@@ -12,5 +12,9 @@ return {
     yazi_floating_window_border = 'none',
     yazi_floating_window_zindex = 200,
     keymaps = { show_help = '<f1>' },
+    integrations = {
+      grep_in_directory = 'fzf-lua',
+      grep_in_selected_files = 'fzf-lua',
+    },
   },
 }
