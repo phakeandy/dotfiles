@@ -2,5 +2,5 @@
 
 set -xe
 
-# wl-paste -t image/png | tesseract stdin stdout | wl-copy
-xclip -selection clipboard -t image/png -o | tesseract stdin stdout | xclip -selection clipboard
+# wl-paste -t image/png | tesseract stdin stdout -l chi_sim+eng | wl-copy
+xclip -selection clipboard -t image/png -o | tesseract stdin stdout -l chi_sim+eng | xclip -selection clipboard

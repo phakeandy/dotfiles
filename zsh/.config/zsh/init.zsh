@@ -111,7 +111,7 @@ if command -v fzf >/dev/null 2>&1; then
     export FZF_DEFAULT_OPTS="--height 70% --layout=reverse --color=pointer:12 \
                              --border=none --preview-window=border-none \
                              --preview='cat {}' --preview-window hidden \
-                             --bind 'ctrl-/:toggle-preview'"
+                             --bind 'ctrl-/:toggle-preview,ctrl-j:accept,ctrl-k:kill-line,pgup:half-page-up,pgdn:half-page-down,alt-<:first,alt->:last'"
 fi
 
 [ -f $HOME/.apikeys ] && source $HOME/.apikeys

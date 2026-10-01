@@ -8,9 +8,16 @@ nnoremap k gk
 "nnoremap <tab> <c-w><c-w><c-w>_
 nnoremap <leader><leader> <c-w><c-w>
 nnoremap <leader>b :ls<cr>:b<space>
+
 augroup EscInTerm
-  autocmd TermOpen * tnoremap <buffer> <Esc> <c-\><c-n>
-  autocmd FileType fzf tunmap <buffer> <Esc>
+  autocmd TermOpen * tnoremap <buffer> <Esc><Esc> <c-\><c-n>
+  "autocmd FileType fzf tunmap <buffer> <Esc>
+augroup END
+
+" 保证 vim 和 neovim 的终端行为一致
+augroup KeepFinishedTerminal
+ autocmd!
+ autocmd TermClose * stopinsert
 augroup END
 
 command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
@@ -131,3 +138,14 @@ let g:loaded_netrwPlugin = 1
 let g:loaded_netrw = 0
 
 lua require("config.lazy")
+
+function! s:Translate() range
+  let l:tmp = tempname()
+  call writefile(getline(a:firstline, a:lastline), l:tmp)
+  " 40 -> 1 chinese char == 2 english char
+  " execute 'vert terminal ++cols=40 trans -f ' . l:tmp
+  execute 'terminal trans -f ' . l:tmp
+  setlocal nonumber norelativenumber
+endfunction
+
+vnoremap <silent> <leader>tt :call <SID>Translate()<CR>

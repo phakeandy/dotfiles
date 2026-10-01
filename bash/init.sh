@@ -67,7 +67,7 @@ fi
 
 if [[ -x "$(command -v fzf)" ]]; then
     eval "$(fzf --bash)"
-    export FZF_DEFAULT_OPTS='--height 50% --layout=reverse --border --color=pointer:12'
+    export FZF_DEFAULT_OPTS='--height 50% --layout=reverse --border --color=pointer:12 --bind ctrl-j:accept,ctrl-k:kill-line,pgup:half-page-up,pgdn:half-page-down,alt-<:first,alt->:last'
 fi
 
 

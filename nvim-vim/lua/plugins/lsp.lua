@@ -5,6 +5,7 @@ local servers = {
   gopls = {},
   vtsls = {},
   basedpyright = {},
+  emmet_language_server = {},
 }
 
 return {
