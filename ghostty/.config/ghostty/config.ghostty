@@ -2,7 +2,8 @@ gtk-titlebar = false
 font-family = "Iosevka Nerd Font Mono"
 font-family = "Noto Sans CJK SC"
 font-feature = -calt, -liga, -dlig
-font-size = 14
+#font-family = "Maple Mono NF CN"
+font-size = 16
 # TODO: not work
 window-inherit-font-size = false
 keybind  = ctrl+0=set_font_size:12
@@ -37,6 +38,7 @@ keybind = alt+shift+o=esc:O
 
 #theme = Gruvbox Dark
 theme = TokyoNight
+#theme = Catppuccin Latte
 #foreground=#ffffff
 #background=#000000
 #background-opacity=1.0

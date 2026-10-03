@@ -1,6 +1,7 @@
 return {
   'mikavilpas/yazi.nvim',
   version = '*',
+  enabled = false,
   dependencies = { 'nvim-lua/plenary.nvim' },
   keys = {
     { '-', '<cmd>Yazi<cr>', mode = { 'n', 'v' }, desc = 'Yazi at current file' },

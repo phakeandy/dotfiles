@@ -6,9 +6,12 @@ return {
     throttle = 1500,
     debounce = 600,
     virtualtext = {
+      -- Manual-only by default; use :Minuet virtualtext toggle per buffer.
       auto_trigger_ft = {},
       keymap = {
-        accept = '<C-f>',
+        accept = '<A-A>',
+        accept_line = '<A-a>',
+        accept_n_lines = '<A-z>',
         prev = '<A-[>',
         next = '<A-]>',
         dismiss = '<A-e>',
@@ -29,4 +32,13 @@ return {
       },
     },
   },
+  config = function(_, opts)
+    require('minuet').setup(opts)
+    vim.keymap.set('n', '<leader>la', '<cmd>Minuet virtualtext toggle<cr>', {
+      desc = 'Minuet: toggle automatic virtual text completion',
+    })
+    vim.keymap.set('i', '<A-y>', function()
+      require('minuet.virtualtext').action.next()
+    end, { desc = 'Minuet: trigger virtual text completion' })
+  end,
 }

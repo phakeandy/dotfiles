@@ -6,8 +6,8 @@ nnoremap Y y$
 noremap j gj
 nnoremap k gk
 "nnoremap <tab> <c-w><c-w><c-w>_
-nnoremap <leader><leader> <c-w><c-w>
-nnoremap <leader>b :ls<cr>:b<space>
+"nnoremap <leader><leader> <c-w><c-w>
+"nnoremap <leader>b :ls<cr>:b<space>
 
 augroup EscInTerm
   autocmd TermOpen * tnoremap <buffer> <Esc><Esc> <c-\><c-n>
@@ -53,10 +53,10 @@ set cursorline
 set guicursor=a:block-blinkwait500-blinkon500-blinkoff500
 "set cmdheight=0 laststatus=3 statusline=
 set noshowmode
-set wrap
+"set wrap
 set exrc
 set splitright splitbelow
-set smarttab smartindent
+set smarttab smartindent tabstop=4
 set formatoptions+=Mm " include the chinese charactor
 set listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set completeopt=longest,menuone,popup pumheight=6
@@ -72,14 +72,14 @@ vim.diagnostic.config({
 EOF
 
 lua << EOF
-vim.keymap.set('n', '<leader>ld', function()
+vim.keymap.set('n', '<leader>Ld', function()
   local filter = { bufnr = 0 }
   local enabled = not vim.diagnostic.is_enabled(filter)
   vim.diagnostic.enable(enabled, filter)
   vim.notify('Diagnostics ' .. (enabled and 'enabled' or 'disabled') .. ' for buffer')
 end, { desc = 'Toggle diagnostics for buffer' })
 
-vim.keymap.set('n', '<leader>lD', function()
+vim.keymap.set('n', '<leader>LD', function()
   local enabled = not vim.diagnostic.is_enabled()
   vim.diagnostic.enable(enabled)
   vim.notify('Diagnostics ' .. (enabled and 'enabled' or 'disabled') .. ' globally')
@@ -116,8 +116,20 @@ noremap <leader>C <cmd>cclose<cr>
 nnoremap ]q <cmd>cnext<cr>
 nnoremap [q <cmd>cprev<cr>
 nnoremap <C-s> <cmd>write<cr>
+nnoremap <leader>w <cmd>write<cr>
+inoremap <C-s> <cmd>write<cr>
 nnoremap <leader>q <cmd>quit<cr>
-nnoremap <leader>d <cmd>bdelete<cr>
+lua << EOF
+vim.keymap.set('n', '<leader>d', function()
+  -- Diff buffers retain their original filetype; check the current tabpage.
+  local diffview = package.loaded['diffview.lib']
+  if diffview and diffview.get_current_view() then
+    vim.cmd('DiffviewClose')
+  else
+    vim.cmd('bdelete')
+  end
+end, { desc = 'Close Diffview or delete buffer' })
+EOF
 nnoremap <leader>x :terminal<space>
 nnoremap <leader>X :below terminal<space>
 nnoremap zl 10zl
