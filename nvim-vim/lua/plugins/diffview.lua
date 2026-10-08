@@ -9,21 +9,20 @@ return {
     'DiffviewRefresh',
   },
   keys = {
-    { '<leader>gs', '<cmd>DiffviewOpen<cr>', desc = 'Diffview: open changes' },
-    -- { '<leader>vc', '<cmd>DiffviewClose<cr>', desc = 'Diffview: close' },
+    { '<leader>gst', '<cmd>DiffviewOpen<cr>', desc = 'Diffview: open changes' },
     {
-      '<leader>h',
+      '<leader>gd',
       '<cmd>DiffviewFileHistory %<cr>',
       desc = 'Diffview: current file history',
     },
     {
-      '<leader>h',
+      '<leader>gd',
       ":<C-u>'<,'>DiffviewFileHistory<cr>",
       mode = 'x',
       desc = 'Diffview: selected lines history',
     },
     {
-      '<leader>H',
+      '<leader>glg',
       '<cmd>DiffviewFileHistory<cr>',
       desc = 'Diffview: repository history',
     },

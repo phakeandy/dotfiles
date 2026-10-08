@@ -119,6 +119,7 @@ nnoremap <C-s> <cmd>write<cr>
 nnoremap <leader>w <cmd>write<cr>
 inoremap <C-s> <cmd>write<cr>
 nnoremap <leader>q <cmd>quit<cr>
+nnoremap <leader>wq <cmd>wq<cr>
 lua << EOF
 vim.keymap.set('n', '<leader>d', function()
   -- Diff buffers retain their original filetype; check the current tabpage.

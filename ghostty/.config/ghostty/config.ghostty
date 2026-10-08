@@ -1,12 +1,13 @@
 gtk-titlebar = false
 font-family = "Iosevka Nerd Font Mono"
-font-family = "Noto Sans CJK SC"
+font-family = "Source Han Sans SC"
 font-feature = -calt, -liga, -dlig
 #font-family = "Maple Mono NF CN"
 font-size = 16
+adjust-cell-height = -10% 
 # TODO: not work
 window-inherit-font-size = false
-keybind  = ctrl+0=set_font_size:12
+keybind  = ctrl+0=set_font_size:16
 
 cursor-style = block
 cursor-style-blink = true

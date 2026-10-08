@@ -22,7 +22,7 @@ cnoremap <C-v> <C-r>+
 
 " Select mode: -- (insert) SELECT --
 set keymodel+=startsel
-set selectmode+=key
+set selectmode+=key,mouse
 
 snoremap <C-C> <C-O>"+y
 snoremap <C-X> <C-O>"+d

@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.0.0",
+  "lastChangelogVersion": "1.0.4",
   "theme": "dark",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6.1-sol",
@@ -9,8 +9,11 @@
   "packages": [
     "npm:pi-web-access",
     "https://github.com/ayghri/i-have-adhd",
-    "npm:pi-claude-bridge",
-    "git:github.com/phakeandy/pi-tmux-subagents"
+    {
+      "source": "git:github.com/phakeandy/pi-tmux-subagents",
+      "extensions": []
+    },
+    "npm:pi-subagents"
   ],
   "terminal": {
     "clearOnShrink": false,
@@ -27,7 +30,8 @@
   ],
   "modelThinkingLevels": {
     "openai-codex/gpt-5.6-sol": "medium",
-    "openai-codex/gpt-6-sol": "medium"
+    "openai-codex/gpt-6-sol": "medium",
+    "openai-codex/gpt-6.1-sol": "medium"
   },
   "powerline": {
     "preset": "nerd",

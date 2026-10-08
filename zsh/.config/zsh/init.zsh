@@ -121,13 +121,5 @@ export PATH=~/bin:$PATH
 [ -d $HOME/go/bin ] && export PATH="$HOME/go/bin:$PATH"
 
 
-# yazi
-function y() {
-    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-    command yazi "$@" --cwd-file="$tmp"
-    IFS= read -r -d '' cwd < "$tmp"
-    [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
-    command rm -f -- "$tmp"
-}
-
 [ -f "$HOME/.config/zsh/function.sh" ] && source "$HOME/.config/zsh/function.sh"
+[ -f "$HOME/.config/zsh/cli.zsh" ] && source "$HOME/.config/zsh/cli.zsh"
