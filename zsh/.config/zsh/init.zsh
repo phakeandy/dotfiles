@@ -100,6 +100,7 @@ alias gss='git status -s' && compdef _git gss=git-status
 alias gst='git status' && compdef _git gst=git-status
 alias gls='git ls-files' && compdef _git gls=git-ls-files
 alias wip="git commit -v -m wip"
+alias cx="codex --yolo"
 
 #if command -v nvim >/dev/null 2>&1; then
 #       export EDITOR="nvim"
