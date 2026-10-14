@@ -42,8 +42,9 @@ set grepprg=rg\ --vimgrep\ --no-heading
 set path+=**
 set wildignore+=*/node_modules/*,*/.git/*,*/.svn/*
 lua << EOF
-if vim.loop.os_uname().sysnam == "Windows" then
-  vim.cmd [[let g:clipboard = 'win32yank']]
+-- WSL: 显式使用 Windows 侧 win32yank.exe 作为系统剪贴板（nvim 本身也会自动探测）
+if vim.fn.has('wsl') == 1 and vim.fn.executable('win32yank.exe') == 1 then
+  vim.g.clipboard = 'win32yank'
 end
 EOF
 set ignorecase
@@ -51,8 +52,8 @@ set foldmethod=indent foldlevel=99
 set cursorline
 " Keep a blinking block cursor in every Neovim mode.
 "set guicursor=a:block-blinkwait500-blinkon500-blinkoff500
-set cmdheight=0 laststatus=3 statusline=
-"set noshowmode
+"set cmdheight=0 laststatus=3 statusline=
+set noshowmode
 "set wrap
 set exrc
 set splitright splitbelow
@@ -61,7 +62,6 @@ set formatoptions+=Mm " include the chinese charactor
 set listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set completeopt=longest,menuone,popup pumheight=6
 set mousescroll=ver:1 " For Ghosstty's bug: https://github.com/ghostty-org/ghostty/discussions/3955?utm_source=chatgpt.com
-set smoothscroll
 
 lua << EOF
 vim.diagnostic.config({

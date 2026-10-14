@@ -102,10 +102,12 @@ alias gls='git ls-files' && compdef _git gls=git-ls-files
 alias wip="git commit -v -m wip"
 alias cx="codex --yolo"
 
-#if command -v nvim >/dev/null 2>&1; then
-#       export EDITOR="nvim"
-#       export MANPAGER="nvim +Man!"
-#fi
+# Default editor (nvim nightly at ~/.local/bin/nvim)
+if command -v nvim >/dev/null 2>&1; then
+	export EDITOR="nvim"
+	export VISUAL="nvim"
+	#export MANPAGER="nvim +Man!"  # 想让 man 也走 nvim 时取消注释
+fi
 
 if command -v fzf >/dev/null 2>&1; then
     eval "$(fzf --zsh)"
@@ -119,6 +121,7 @@ fi
 
 export PATH=~/.local/bin:$PATH
 export PATH=~/bin:$PATH
+export PATH=$PATH:/usr/local/go/bin   # Go (official tarball install)
 [ -d $HOME/go/bin ] && export PATH="$HOME/go/bin:$PATH"
 
 
