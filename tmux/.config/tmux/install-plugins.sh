@@ -34,7 +34,7 @@ clone https://github.com/tmux-plugins/tpm "$plugin_dir/tpm"
 # nothing for the "prefix + I" install step to fetch.
 clone https://github.com/Morantron/tmux-fingers "$plugin_dir/tmux-fingers"
 clone https://github.com/tmux-plugins/tmux-prefix-highlight "$plugin_dir/tmux-prefix-highlight"
-clone https://github.com/sainnhe/tmux-fzf "$plugin_dir/tmux-fzf"
+clone https://github.com/omerxx/tmux-sessionx "$plugin_dir/tmux-sessionx"
 
 if [ -n "$(printenv TMUX)" ]; then
     tmux source-file "$HOME/.config/tmux/tmux.conf"
