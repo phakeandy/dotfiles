@@ -88,6 +88,7 @@ precmd() {
 }
 
 # Alias
+alias g="git" && compdef _git g=git
 alias gco='git checkout' && compdef _git gco=git-checkout
 alias gb='git branch' && compdef _git gb=git-branch
 alias gd='git diff' && compdef _git gd=git-diff

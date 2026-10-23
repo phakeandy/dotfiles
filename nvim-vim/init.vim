@@ -52,8 +52,8 @@ set foldmethod=indent foldlevel=99
 set cursorline
 " Keep a blinking block cursor in every Neovim mode.
 "set guicursor=a:block-blinkwait500-blinkon500-blinkoff500
-"set cmdheight=0 laststatus=3 statusline=
-set noshowmode
+set cmdheight=0 laststatus=3 statusline=
+"set noshowmode
 "set wrap
 set exrc
 set splitright splitbelow
