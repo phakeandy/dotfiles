@@ -31,11 +31,13 @@ function rainbow(text: string): string {
 export default function (pi: ExtensionAPI) {
   let active: ExtensionContext | undefined;
   let branch = "";
+  let sessionTag = "";
   let redraw: (() => void) | undefined;
 
   pi.on("session_start", (_event, ctx) => {
     if (ctx.mode !== "tui") return;
     active = ctx;
+    sessionTag = ctx.sessionManager.getSessionId().slice(0, 6) || icon.pi;
 
     // The status line is rendered in the editor's top border below.
     // Hide Pi's separate native footer to avoid a second status line.
@@ -60,7 +62,7 @@ export default function (pi: ExtensionAPI) {
           const contentWidth = width;
           const parts: string[] = [];
           const add = (part: string) => parts.push(part);
-          add(color("#febc38", icon.pi));
+          add(color("#febc38", sessionTag || icon.pi));
           const model = active.model?.name ?? active.model?.id ?? "no-model";
           add(color("#d787af", `${icon.model ? icon.model + " " : ""}${model.replace(/^Claude /, "")}`));
           const level = pi.getThinkingLevel();

@@ -1,4 +1,6 @@
 {
+  "tui.editor.historyPrevious": "ctrl+p",
+  "app.model.cycleForward": [],
   "tui.editor.undo": ["ctrl+-", "ctrl+shift+-", "ctrl+shift+_"],
   "tui.altScreen.pageUp": [],
   "tui.altScreen.pageDown": [],
