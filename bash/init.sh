@@ -67,7 +67,9 @@ fi
 
 if [[ -x "$(command -v fzf)" ]]; then
     eval "$(fzf --bash)"
-    export FZF_DEFAULT_OPTS='--height 50% --layout=reverse --border --color=pointer:12 --bind ctrl-j:accept,ctrl-k:kill-line,pgup:half-page-up,pgdn:half-page-down,alt-<:first,alt->:last'
+    # Tokyo Night Day (light) palette, mirroring zsh/.config/zsh/init.zsh.
+    FZF_THEME="--color=fg:#3760bf,fg+:#2e7de9,hl:#188092,hl+:#d20065,bg+:#b7c1e3,info:#8990b3,prompt:#188092,pointer:#d20065,marker:#d20065,spinner:#d20065,header:#b15c00,border:#4094a3,label:#d20065,separator:#b15c00,scrollbar:#4094a3,query:#3760bf"
+    export FZF_DEFAULT_OPTS="--height 50% --layout=reverse --border $FZF_THEME --bind ctrl-j:accept,ctrl-k:kill-line,pgup:half-page-up,pgdn:half-page-down,alt-<:first,alt->:last"
 fi
 
 

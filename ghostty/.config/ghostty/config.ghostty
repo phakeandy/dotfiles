@@ -38,7 +38,8 @@ keybind = alt+l=esc:l
 keybind = alt+shift+o=esc:O
 
 # theme = Gruvbox Dark
-theme = TokyoNight
+# theme = TokyoNight
+theme = TokyoNight Day
 #theme = Catppuccin Latte
 #foreground=#ffffff
 #background=#000000

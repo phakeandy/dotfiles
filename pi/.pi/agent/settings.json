@@ -1,64 +1,10 @@
 {
   "lastChangelogVersion": "1.4.0",
-  "theme": "dark",
-  "defaultProvider": "deepseek",
-  "defaultModel": "deepseek-flash",
-  "defaultThinkingLevel": "high",
-  "outputPad": 1,
   "hideThinkingBlock": true,
   "packages": [
-    {
-      "source": "npm:pi-web-access",
-      "extensions": [
-        "+dist/index.js"
-      ]
-    },
-    "npm:@narumitw/pi-btw",
-    {
-      "source": "git:github.com/phakeandy/pi-tmux-subagents",
-      "extensions": []
-    },
-    {
-      "source": "npm:pi-subagents",
-      "extensions": [
-        "-bundle/index.js"
-      ],
-      "skills": [
-        "-skills/pi-subagents/SKILL.md",
-        "-skills/council-mode/SKILL.md"
-      ],
-      "prompts": [
-        "-prompts/council.md",
-        "-prompts/gather-context-and-clarify.md",
-        "-prompts/parallel-cleanup.md",
-        "-prompts/parallel-research.md",
-        "-prompts/parallel-review.md",
-        "-prompts/review-loop.md"
-      ]
-    }
+    "npm:pi-web-access",
+    "npm:@narumitw/pi-btw"
   ],
-  "terminal": {
-    "clearOnShrink": false,
-    "showTerminalProgress": true,
-    "imageWidthCells": 60
-  },
-  "tuiMode": "fullscreen",
-  "editorPaddingX": 0,
-  "extensions": [
-    "-extensions/notify.ts",
-    "-extensions/questionnaire.ts",
-    "-extensions/quiet-tools.ts"
-  ],
-  "prompts": [
-    "-prompts/justdowhatiwant.md"
-  ],
-  "modelThinkingLevels": {
-    "openai-codex/gpt-5.6-sol": "medium",
-    "openai-codex/gpt-6-sol": "medium",
-    "openai-codex/gpt-6.1-sol": "medium"
-  },
-  "powerline": {
-    "preset": "nerd",
-    "placement": "above"
-  }
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-6.1-sol"
 }

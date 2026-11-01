@@ -112,7 +112,11 @@ fi
 
 if command -v fzf >/dev/null 2>&1; then
     eval "$(fzf --zsh)"
-    export FZF_DEFAULT_OPTS="--height 70% --layout=reverse --color=pointer:12 \
+    # Tokyo Night Day (light) palette so fzf matches ghostty/tmux/nvim.
+    # bg is intentionally not set: the terminal background (#e1e2e7) shows
+    # through, which is what the old pointer:12-only setup relied on.
+    FZF_THEME="--color=fg:#3760bf,fg+:#2e7de9,hl:#188092,hl+:#d20065,bg+:#b7c1e3,info:#8990b3,prompt:#188092,pointer:#d20065,marker:#d20065,spinner:#d20065,header:#b15c00,border:#4094a3,label:#d20065,separator:#b15c00,scrollbar:#4094a3,query:#3760bf"
+    export FZF_DEFAULT_OPTS="--height 70% --layout=reverse $FZF_THEME \
                              --border=none --preview-window=border-none \
                              --preview='cat {}' --preview-window hidden \
                              --bind 'ctrl-/:toggle-preview,ctrl-j:accept,ctrl-k:kill-line,pgup:half-page-up,pgdn:half-page-down,alt-<:first,alt->:last'"

@@ -1,0 +1,5 @@
+# Machine-local pi state (see pi/README.md) — never tracked.
+pi/.pi/agent/auth.json
+pi/.pi/agent/models.json
+# Installed and overwritten by the Herdr integration; not by hand.
+pi/.pi/agent/extensions/herdr-agent-state.ts
