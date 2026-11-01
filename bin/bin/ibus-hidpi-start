@@ -1,0 +1,7 @@
+#!/bin/sh
+# 用带 GDK_DPI_SCALE 的 panel 替换 im-config 启动的默认 ibus-daemon。
+# 由 ~/.config/autostart/ibus-hidpi.desktop 在登录时调用（也可手动跑）。
+sleep 2
+pkill -x ibus-ui-gtk3 2>/dev/null
+exec ibus-daemon --daemonize --xim --replace \
+     --panel="/home/andy/bin/ibus-panel-hidpi"
