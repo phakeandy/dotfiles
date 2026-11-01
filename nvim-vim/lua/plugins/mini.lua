@@ -1,5 +1,16 @@
+-- return {
+--   'nvim-mini/mini.icons',
+--   version = false,
+--   opts = {},
+--   config = function() {
+--
+--   }
+-- }
 return {
-  'nvim-mini/mini.icons',
+  'nvim-mini/mini.nvim',
   version = false,
-  opts = {},
+  config = function()
+    -- require('mini.pairs').setup()
+    require('mini.icons').setup()
+  end,
 }

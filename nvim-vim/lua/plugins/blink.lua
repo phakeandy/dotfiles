@@ -9,6 +9,7 @@ return {
     return {
       keymap = {
         preset = 'default',
+        ['<Tab>'] = { 'accept', 'snippet_forward', 'fallback' },
       },
       snippets = { preset = 'luasnip' },
       sources = {

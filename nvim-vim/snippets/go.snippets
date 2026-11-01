@@ -1,2 +1,5 @@
 snippet iferr
 	if err != nil
+
+snippet dbg
+    fmt.Fprintf(os.Stderr, "`expand('%:t')`:`line('.')` ${1:x} = %#v\n", $1) //dbg

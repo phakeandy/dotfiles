@@ -5,7 +5,9 @@ nnoremap c "_c
 nnoremap Y y$
 noremap j gj
 nnoremap k gk
-"nnoremap <tab> <c-w><c-w><c-w>_
+noremap <tab> gt
+nnoremap <c-w>" <c-w>s
+nnoremap <c-w>% <c-w>v
 "nnoremap <leader><leader> <c-w><c-w>
 "nnoremap <leader>b :ls<cr>:b<space>
 
@@ -62,6 +64,7 @@ set formatoptions+=Mm " include the chinese charactor
 set listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set completeopt=longest,menuone,popup pumheight=6
 set mousescroll=ver:1 " For Ghosstty's bug: https://github.com/ghostty-org/ghostty/discussions/3955?utm_source=chatgpt.com
+set smoothscroll " smooth scroll while wrapped long lines
 
 lua << EOF
 vim.diagnostic.config({

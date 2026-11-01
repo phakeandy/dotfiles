@@ -1,1 +1,2 @@
-noremap <leader>x "9yip}:put =system(getreg('9'))<cr>
+" use yy!}bash instead
+"noremap <leader>x "9yip}:put =system(getreg('9'))<cr>
