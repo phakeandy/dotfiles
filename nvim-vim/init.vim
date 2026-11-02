@@ -5,7 +5,7 @@ nnoremap c "_c
 nnoremap Y y$
 noremap j gj
 nnoremap k gk
-noremap <tab> gt
+noremap <leader><tab> gt
 nnoremap <c-w>" <c-w>s
 nnoremap <c-w>% <c-w>v
 "nnoremap <leader><leader> <c-w><c-w>

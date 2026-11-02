@@ -2,6 +2,9 @@
 
 xfconf-query -c xfwm4 -p /general/easy_click -s Super
 
+# 面板只显示在外接 4K 屏（HDMI-1）上，而不是笔记本屏
+xfconf-query -c xfce4-panel -n -t string -p /panels/panel-1/output-name -s HDMI-1
+
 # 鼠标指针放大（Adwaita 提供的尺寸：24/30/36/48/72/96）
 xfconf-query -c xsettings -p /Gtk/CursorThemeName -s Adwaita
 xfconf-query -c xsettings -p /Gtk/CursorThemeSize -s 36
