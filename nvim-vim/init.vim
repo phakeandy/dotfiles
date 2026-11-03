@@ -68,6 +68,7 @@ set listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set completeopt=longest,menuone,popup pumheight=6
 set mousescroll=ver:1 " For Ghosstty's bug: https://github.com/ghostty-org/ghostty/discussions/3955?utm_source=chatgpt.com
 set smoothscroll " smooth scroll while wrapped long lines
+colorscheme catppuccin
 
 lua << EOF
 vim.diagnostic.config({
@@ -138,6 +139,9 @@ vim.keymap.set('n', '<leader>d', function()
   end
 end, { desc = 'Close Diffview or delete buffer' })
 EOF
+" 未保存时 :q / :qa 弹原生确认框（a=全部保存, d=全部丢弃），切走的 buffer 保留在内存里
+set confirm hidden
+
 nnoremap <leader>x :terminal<space>
 nnoremap <leader>X :below terminal<space>
 nnoremap zl 10zl
@@ -158,6 +162,7 @@ let g:loaded_netrwPlugin = 1
 let g:loaded_netrw = 0
 
 lua require("config.lazy")
+lua require('config.mcursor')
 
 function! s:Translate() range
   let l:tmp = tempname()
