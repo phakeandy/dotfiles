@@ -1,12 +1,30 @@
 -- Theme switch: keep exactly one colorscheme active.
 return {
   {
-    'folke/tokyonight.nvim',
+    'catppuccin/nvim',
+    name = 'catppuccin',
     lazy = false,
     priority = 1000,
     enabled = false,
     opts = {
-      style = 'night',
+      flavour = 'latte',
+      background = { light = 'latte', dark = 'latte' },
+      -- styles = {
+      --   comments = {},
+      -- },
+    },
+    config = function(_, opts)
+      require('catppuccin').setup(opts)
+      vim.cmd.colorscheme('catppuccin-latte')
+    end,
+  },
+  {
+    'folke/tokyonight.nvim',
+    lazy = false,
+    enabled = false,
+    priority = 1000,
+    opts = {
+      style = 'day',
       styles = {
         comments = { italic = false },
       },
@@ -16,20 +34,4 @@ return {
       vim.cmd.colorscheme('tokyonight-day')
     end,
   },
-  -- {
-  --   'ellisonleao/gruvbox.nvim',
-  --   lazy = false,
-  --   priority = 1000,
-  --   opts = {
-  --     contrast = '',
-  --     italic = {
-  --       comments = false,
-  --     },
-  --   },
-  --   config = function(_, opts)
-  --     vim.o.background = 'dark'
-  --     require('gruvbox').setup(opts)
-  --     vim.cmd.colorscheme('gruvbox')
-  --   end,
-  -- },
 }

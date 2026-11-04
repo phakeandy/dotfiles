@@ -1,7 +1,7 @@
 if vim.g.neovide then
-  vim.g.neovide_theme = 'dark'
+  vim.g.neovide_theme = 'light'
   vim.o.guifont = 'Sarasa Mono SC:h14'
-  vim.o.background = 'dark'
+  vim.o.background = 'light'
 
   local map = vim.keymap.set
   map({ 'i', 'c' }, '<C-S-V>', '<C-R>+', { noremap = true })
