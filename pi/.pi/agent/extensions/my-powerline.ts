@@ -37,7 +37,10 @@ export default function (pi: ExtensionAPI) {
   pi.on("session_start", (_event, ctx) => {
     if (ctx.mode !== "tui") return;
     active = ctx;
-    sessionTag = ctx.sessionManager.getSessionId().slice(0, 6) || icon.pi;
+    // Session ids are UUIDv7: the first 6 hex chars are the top 24 bits of the
+    // millisecond timestamp, so every session started within the same ~4.7h
+    // window shares that prefix. The trailing chars are pure randomness.
+    sessionTag = ctx.sessionManager.getSessionId().slice(-6) || icon.pi;
 
     // The status line is rendered in the editor's top border below.
     // Hide Pi's separate native footer to avoid a second status line.
