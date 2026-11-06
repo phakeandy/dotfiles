@@ -10,6 +10,30 @@ const RESET = "\x1b[0m";
 const icon = process.env.POWERLINE_NERD_FONTS === "0"
   ? { pi: "π", model: "", folder: "▱", branch: "⎇", context: "◫", sep: "❯" }
   : { pi: "\uE22C", model: "\uEC19", folder: "\uF115", branch: "\uF126", context: "\uF1C0", sep: "\uE0B1" };
+// Fullscreen transcript hint. The stock one is a selected-bg pill reading
+// "↓ Jump to latest message · Ctrl+End" pinned to the last transcript row;
+// a single dim glyph (or nothing) is enough once scrolling hides the composer.
+const SCROLL_HINT = process.env.POWERLINE_SCROLL_HINT ?? "off"; // off | glyph | full
+const HIDE_EDITOR_ON_SCROLL = process.env.POWERLINE_HIDE_EDITOR !== "0";
+
+// Fullscreen renderer surface we touch. Both getters are public on TuiAltScreen,
+// and the object handed to the editor/footer factories is a proxy over the live
+// renderer, so this stays valid across fullscreen <-> regular switches.
+type AltScreenChrome = {
+  isFollowingOutput?: boolean;
+  viewportTop?: number;
+  scrollToEndIndicator?: (() => string) | undefined;
+};
+
+function isAltScreen(tui: unknown): boolean {
+  return "scrollToEndIndicator" in (tui as AltScreenChrome);
+}
+
+function patchScrollHint(tui: unknown): void {
+  const alt = tui as AltScreenChrome;
+  if (SCROLL_HINT === "full" || !isAltScreen(tui)) return; // Regular mode has no pill.
+  alt.scrollToEndIndicator = SCROLL_HINT === "glyph" ? () => color("#6c6c6c", " ↓ ") : undefined;
+}
 
 function compact(n: number): string {
   if (n < 1000) return `${n}`;
@@ -39,8 +63,9 @@ export default function (pi: ExtensionAPI) {
     active = ctx;
     // Session ids are UUIDv7: the first 6 hex chars are the top 24 bits of the
     // millisecond timestamp, so every session started within the same ~4.7h
-    // window shares that prefix. The trailing chars are pure randomness.
-    sessionTag = ctx.sessionManager.getSessionId().slice(-6) || icon.pi;
+    // window shares that prefix. The trailing chars are pure randomness, and 8
+    // hex chars is the shortest token tmux-fingers will pick up.
+    sessionTag = ctx.sessionManager.getSessionId().slice(-8) || icon.pi;
 
     // The status line is rendered in the editor's top border below.
     // Hide Pi's separate native footer to avoid a second status line.
@@ -97,13 +122,23 @@ export default function (pi: ExtensionAPI) {
           return text + color("#215477", tail);
         }
 
-        protected override renderBottomBorder(width: number, hiddenLineCount: number): string {
-          const label = hiddenLineCount ? ` ↓ ${hiddenLineCount} more ` : "";
-          this.bottomLine = color("#215477", "─".repeat(Math.max(0, width - label.length)) + label);
-          return this.bottomLine;
+        // Fullscreen only: hide the composer while the transcript is scrolled away
+        // from the live end, and bring it back on the next keystroke.
+        private hidden = false;
+        private lastViewportTop = -1;
+
+        private collapseComposer(): boolean {
+          if (!HIDE_EDITOR_ON_SCROLL || !isAltScreen(tui)) return false;
+          const alt = tui as unknown as AltScreenChrome;
+          const following = alt.isFollowingOutput !== false;
+          const top = alt.viewportTop ?? 0;
+          if (following) this.hidden = false;
+          else if (this.lastViewportTop >= 0 && top < this.lastViewportTop) this.hidden = true;
+          this.lastViewportTop = top;
+          return this.hidden;
         }
 
-        override render(width: number): string[] {
+        private renderComposer(width: number): string[] {
           if (width < 4) return super.render(width);
           // The base editor still owns text wrapping, cursor, history and autocomplete.
           const lines = super.render(width - 2);
@@ -123,7 +158,37 @@ export default function (pi: ExtensionAPI) {
           });
         }
 
+        override render(width: number): string[] {
+          patchScrollHint(tui);
+          const lines = this.renderComposer(width);
+          if (!this.collapseComposer()) return lines;
+          // Keep the row count identical: shrinking the editor would grow the
+          // transcript viewport, which can flip isFollowingOutput back to true and
+          // make the box flicker on its own.
+          return lines.map(() => "");
+        }
+
+        override handleInput(data: string): void {
+          this.hidden = false; // Any keystroke brings the composer back.
+          super.handleInput(data);
+        }
+
+        override insertTextAtCursor(text: string): void {
+          this.hidden = false; // Programmatic insert (clipboard image, paste).
+          super.insertTextAtCursor(text);
+        }
+
+        protected override renderBottomBorder(width: number, hiddenLineCount: number): string {
+          const label = hiddenLineCount ? ` ↓ ${hiddenLineCount} more ` : "";
+          this.bottomLine = color("#215477", "─".repeat(Math.max(0, width - label.length)) + label);
+          return this.bottomLine;
+        }
+
         override handleMouse(event: TuiMouseEvent) {
+          // While the composer is blanked out, stay out of the way: wheel events over
+          // these rows must keep scrolling the transcript, and a click has nothing to
+          // hit.
+          if (this.hidden) return undefined;
           // Base Editor accounts for a bottom-border row; our render omits it.
           const autocompleteStart = this.visibleInputRows + 1;
           return super.handleMouse({

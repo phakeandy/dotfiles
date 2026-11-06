@@ -15,14 +15,14 @@ set -euo pipefail
 FD=$(command -v fd || command -v fdfind || true)
 
 sel=$(
-  sesh list --icons -d -c -t -T |
+  sesh list --icons -d -c -t -T -z |
     fzf \
       --ansi --no-sort \
       --border-label ' sesh ' \
       --prompt '⚡  ' \
       --header ' ^a all  ^t tmux  ^g configs  ^x zoxide  ^f find  ^d kill' \
       --bind 'tab:down,btab:up' \
-      --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons -d -c -t -T)' \
+      --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons -d -c -t -T -z)' \
       --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list --icons -d -t)' \
       --bind 'ctrl-g:change-prompt(⚙️  )+reload(sesh list --icons -d -c -T)' \
       --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list --icons -d -z)' \
