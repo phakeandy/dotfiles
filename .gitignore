@@ -3,3 +3,7 @@ pi/.pi/agent/auth.json
 pi/.pi/agent/models.json
 # Installed and overwritten by the Herdr integration; not by hand.
 pi/.pi/agent/extensions/herdr-agent-state.ts
+# fcitx5 运行时状态：仓库只关心手写的 profile 与 classicui.conf（见 fcitx5/README.md）。
+fcitx5/.config/fcitx5/config
+fcitx5/.config/fcitx5/conf/*
+!fcitx5/.config/fcitx5/conf/classicui.conf
