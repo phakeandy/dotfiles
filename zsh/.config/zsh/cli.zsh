@@ -1,6 +1,6 @@
 # zoxide
 export _ZO_ECHO=1 # print pwd when cd succussful
-eval "$(zoxide init zsh)"
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
 # yazi
 function y() {
@@ -10,3 +10,8 @@ function y() {
     [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
     command rm -f -- "$tmp"
 }
+
+# 容器内 docker 操作宿主机
+if [[ -e /run/.containerenv ]] && command -v distrobox-host-exec >/dev/null; then
+    docker() { distrobox-host-exec docker "$@" }
+fi
