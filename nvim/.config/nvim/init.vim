@@ -44,8 +44,15 @@ set grepprg=rg\ --vimgrep\ --no-heading
 set path+=**
 set wildignore+=*/node_modules/*,*/.git/*,*/.svn/*
 lua << EOF
--- WSL: 显式使用 Windows 侧 win32yank.exe 作为系统剪贴板（nvim 本身也会自动探测）
-if vim.fn.has('wsl') == 1 and vim.fn.executable('win32yank.exe') == 1 then
+-- WSL 剪贴板优先级：
+--   1) tmux（$TMUX）或 WSLg 的 Wayland 剪贴板（wl-clipboard）—— 本机，毫秒级
+--   2) 都没有时才退回 win32yank.exe —— 每次读写都要新建 Windows 进程，本机装了绿盾后单次要 2.3s
+-- 注意：有原生 provider 时不要指定 win32yank，否则会盖掉 nvim 的自动探测。
+local has_native = (vim.env.TMUX and vim.fn.executable('tmux') == 1)
+  or (vim.env.WAYLAND_DISPLAY
+    and vim.fn.executable('wl-copy') == 1
+    and vim.fn.executable('wl-paste') == 1)
+if vim.fn.has('wsl') == 1 and not has_native and vim.fn.executable('win32yank.exe') == 1 then
   vim.g.clipboard = 'win32yank'
 end
 EOF
