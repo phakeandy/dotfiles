@@ -22,7 +22,11 @@ Stow links tracked files into `~/.pi/agent`; runtime state (`sessions/`, `npm/`,
 | `keybindings.json` | Personal key bindings |
 | `APPEND_SYSTEM.md` | Extra system-prompt instructions |
 | `extensions/alias.ts` | Shell-style aliases inside Pi |
-| `extensions/my-powerline.ts` | Status line / editor chrome |
+| `extensions/my-powerline.ts` | Status line / editor chrome; collapses the composer while scrolled (fullscreen) |
+| `extensions/thinking-step.ts` | `alt+,` / `alt+.` step the thinking level up/down |
+| `extensions/quiet-tools.ts` | Collapsed tool output: intent + count instead of raw text (`ctrl+o` expands) |
+| `tests/quiet-tools.test.mjs` | Renderer tests for quiet-tools (`node tests/quiet-tools.test.mjs`) |
+| `tests/my-powerline.test.mjs` | Collapse-decision tests for my-powerline (`node tests/my-powerline.test.mjs`) |
 
 ## Company relay (KeyLights)
 

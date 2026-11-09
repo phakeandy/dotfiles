@@ -16,23 +16,32 @@ const icon = process.env.POWERLINE_NERD_FONTS === "0"
 const SCROLL_HINT = process.env.POWERLINE_SCROLL_HINT ?? "off"; // off | glyph | full
 const HIDE_EDITOR_ON_SCROLL = process.env.POWERLINE_HIDE_EDITOR !== "0";
 
-// Fullscreen renderer surface we touch. Both getters are public on TuiAltScreen,
+// Fullscreen renderer surface we touch. The getters are public on TuiAltScreen,
 // and the object handed to the editor/footer factories is a proxy over the live
 // renderer, so this stays valid across fullscreen <-> regular switches.
+type ScrollViewLike = {
+  scrollTop: number;
+  viewportHeight: number;
+  contentHeight?: number;
+  isFollowingEnd?: boolean;
+};
+
 type AltScreenChrome = {
-  isFollowingOutput?: boolean;
-  viewportTop?: number;
   scrollToEndIndicator?: (() => string) | undefined;
+  // Private on TuiAltScreen, but the dock hands us the live instance.
+  getPrimaryScrollView?: () => ScrollViewLike | undefined;
 };
 
 function isAltScreen(tui: unknown): boolean {
   return "scrollToEndIndicator" in (tui as AltScreenChrome);
 }
 
+const HINT_GLYPH = () => color("#6c6c6c", " ↓ ");
+
 function patchScrollHint(tui: unknown): void {
   const alt = tui as AltScreenChrome;
   if (SCROLL_HINT === "full" || !isAltScreen(tui)) return; // Regular mode has no pill.
-  alt.scrollToEndIndicator = SCROLL_HINT === "glyph" ? () => color("#6c6c6c", " ↓ ") : undefined;
+  alt.scrollToEndIndicator = SCROLL_HINT === "glyph" ? HINT_GLYPH : undefined;
 }
 
 function compact(n: number): string {
@@ -50,6 +59,95 @@ function color(hex: string, text: string): string {
 function rainbow(text: string): string {
   const palette = ["#b281d6", "#d787af", "#febc38", "#e4c00f", "#89d281", "#00afaf", "#178fb9"];
   return [...text].map((char, i) => color(palette[i % palette.length]!, char)).join("");
+}
+
+export type ComposerVisibilityState = {
+  hidden: boolean;
+  lastViewportTop: number;
+};
+
+/**
+ * Decide whether the collapsed composer hides itself on this frame.
+ *
+ * Hiding now really returns the rows to the transcript instead of rendering
+ * blank ones; the catch is that the transcript viewport grows. Once it is tall
+ * enough to fit everything, pi clamps the scroll position back to the end and
+ * flips `isFollowingOutput` back on, so the composer pops back and the scroll
+ * position is lost — the reason the old version could only blank the rows.
+ *
+ * So collapse only when more than `composerRows` lines sit below the viewport:
+ * after growing, the view still ends before the transcript end and the state is
+ * stable. Collapsing also only triggers on an upward scroll, so typing does not
+ * bring the composer back just to have it vanish on the next frame.
+ */
+export function stepComposerVisibility(
+  state: ComposerVisibilityState,
+  view: ScrollViewLike,
+  composerRows: number,
+): ComposerVisibilityState & { hide: boolean } {
+  const below =
+    typeof view.contentHeight === "number"
+      ? view.contentHeight - view.viewportHeight - view.scrollTop
+      : undefined;
+
+  if (state.hidden) {
+    // Back at the live end (Ctrl+End, scrolling down, or new output catching up).
+    if (view.isFollowingEnd === true || below === undefined || below <= 0) {
+      return { hidden: false, lastViewportTop: view.scrollTop, hide: false };
+    }
+    return { ...state, hide: true };
+  }
+
+  const hide =
+    state.lastViewportTop >= 0 &&
+    view.scrollTop < state.lastViewportTop &&
+    below !== undefined &&
+    below > composerRows;
+  return { hidden: hide, lastViewportTop: view.scrollTop, hide };
+}
+
+/**
+ * pi's fullscreen dock hard-codes `minSize: 3` for the editor
+ * (`chat-viewport.js`), so returning zero lines only paints the rows blank —
+ * they are still reserved. Reclaiming them means clearing that layout entry's
+ * minSize too; `Stack.entries` is read by both VStack.render and the layout
+ * tree, so one mutation covers both.
+ */
+export type StackEntryLike = { component: unknown; minSize?: number };
+export type StackLike = { entries?: StackEntryLike[] };
+export type LayoutBoxLike = { component?: StackLike; children?: LayoutBoxLike[] };
+export type LayoutFrameLike = { root?: LayoutBoxLike };
+
+/** Whether `component` is `editor` or wraps it (pi puts the editor in a Container). */
+export function wrapsEditor(component: unknown, editor: unknown, depth = 0): boolean {
+  if (component === editor) return true;
+  if (depth > 8) return false;
+  const children = (component as { children?: unknown[] } | undefined)?.children;
+  return Array.isArray(children) && children.some((child) => wrapsEditor(child, editor, depth + 1));
+}
+
+/**
+ * The innermost stack entry that wraps `editor` — that is the fullscreen dock's
+ * editor slot, whose `minSize: 3` is what keeps the rows reserved. The editor
+ * itself never shows up in the layout tree (the dock renders it inside a plain
+ * Container), so the match has to go through `children`.
+ */
+export function findDockEntry(
+  root: LayoutBoxLike | undefined,
+  editor: unknown,
+): { stack: StackLike; entry: StackEntryLike } | undefined {
+  const search = (box: LayoutBoxLike): { stack: StackLike; entry: StackEntryLike } | undefined => {
+    // Deeper wins: the root stack also wraps the editor through the dock.
+    for (const child of box.children ?? []) {
+      const deeper = search(child);
+      if (deeper) return deeper;
+    }
+    const stack = box.component;
+    if (!stack?.entries) return undefined;
+    const entry = stack.entries.find((candidate) => wrapsEditor(candidate.component, editor));
+    return entry ? { stack, entry } : undefined;
+  };
+  return root ? search(root) : undefined;
 }
 
 export default function (pi: ExtensionAPI) {
@@ -122,20 +220,42 @@ export default function (pi: ExtensionAPI) {
           return text + color("#215477", tail);
         }
 
-        // Fullscreen only: hide the composer while the transcript is scrolled away
-        // from the live end, and bring it back on the next keystroke.
-        private hidden = false;
-        private lastViewportTop = -1;
+        // Fullscreen only: while the transcript is scrolled away from the live
+        // end, give the composer's rows back to the transcript and bring them
+        // back on the next keystroke.
+        private composer: ComposerVisibilityState = { hidden: false, lastViewportTop: -1 };
 
-        private collapseComposer(): boolean {
-          if (!HIDE_EDITOR_ON_SCROLL || !isAltScreen(tui)) return false;
-          const alt = tui as unknown as AltScreenChrome;
-          const following = alt.isFollowingOutput !== false;
-          const top = alt.viewportTop ?? 0;
-          if (following) this.hidden = false;
-          else if (this.lastViewportTop >= 0 && top < this.lastViewportTop) this.hidden = true;
-          this.lastViewportTop = top;
-          return this.hidden;
+        private showComposer(): void {
+          if (!this.composer.hidden) return;
+          const view = (tui as AltScreenChrome).getPrimaryScrollView?.();
+          this.composer = { hidden: false, lastViewportTop: view?.scrollTop ?? this.composer.lastViewportTop };
+        }
+
+        private scrollView(): ScrollViewLike | undefined {
+          if (!HIDE_EDITOR_ON_SCROLL || !isAltScreen(tui)) return undefined;
+          return (tui as AltScreenChrome).getPrimaryScrollView?.();
+        }
+
+        private dockEntry: StackEntryLike | undefined;
+        private dockStack: StackLike | undefined;
+        private dockMinSize: number | undefined;
+
+        /**
+         * Drop the dock's minimum height for the editor while collapsed, and
+         * restore it otherwise. Returns whether the dock was found: without it
+         * the rows would only go blank, so the caller keeps the composer.
+         */
+        private applyDockMinSize(hidden: boolean): boolean {
+          if (!this.dockEntry || !this.dockStack?.entries?.includes(this.dockEntry)) {
+            const layout = (tui as unknown as { currentLayout?: LayoutFrameLike }).currentLayout;
+            const found = findDockEntry(layout?.root, this);
+            this.dockStack = found?.stack;
+            this.dockEntry = found?.entry;
+            this.dockMinSize = found?.entry.minSize;
+          }
+          if (!this.dockEntry) return false;
+          this.dockEntry.minSize = hidden ? 0 : this.dockMinSize;
+          return true;
         }
 
         private renderComposer(width: number): string[] {
@@ -159,22 +279,31 @@ export default function (pi: ExtensionAPI) {
         }
 
         override render(width: number): string[] {
-          patchScrollHint(tui);
           const lines = this.renderComposer(width);
-          if (!this.collapseComposer()) return lines;
-          // Keep the row count identical: shrinking the editor would grow the
-          // transcript viewport, which can flip isFollowingOutput back to true and
-          // make the box flicker on its own.
-          return lines.map(() => "");
+          const view = this.scrollView();
+          if (view) this.composer = stepComposerVisibility(this.composer, view, lines.length);
+          else this.composer.hidden = false;
+
+          let hidden = this.composer.hidden;
+          if (hidden) {
+            hidden = this.applyDockMinSize(true);
+            if (!hidden) this.composer.hidden = false;
+          } else {
+            this.applyDockMinSize(false);
+          }
+          patchScrollHint(tui);
+          // No placeholder rows: the transcript grows by exactly these rows, so
+          // scrolling up buys readable lines instead of blank space.
+          return hidden ? [] : lines;
         }
 
         override handleInput(data: string): void {
-          this.hidden = false; // Any keystroke brings the composer back.
+          this.showComposer(); // Any keystroke brings the composer back.
           super.handleInput(data);
         }
 
         override insertTextAtCursor(text: string): void {
-          this.hidden = false; // Programmatic insert (clipboard image, paste).
+          this.showComposer(); // Programmatic insert (clipboard image, paste).
           super.insertTextAtCursor(text);
         }
 
@@ -188,7 +317,7 @@ export default function (pi: ExtensionAPI) {
           // While the composer is blanked out, stay out of the way: wheel events over
           // these rows must keep scrolling the transcript, and a click has nothing to
           // hit.
-          if (this.hidden) return undefined;
+          if (this.composer.hidden) return undefined;
           // Base Editor accounts for a bottom-border row; our render omits it.
           const autocompleteStart = this.visibleInputRows + 1;
           return super.handleMouse({
@@ -203,4 +332,5 @@ export default function (pi: ExtensionAPI) {
   pi.on("message_update", () => redraw?.());
   pi.on("turn_end", () => redraw?.());
   pi.on("model_select", () => redraw?.());
+  pi.on("thinking_level_select", () => redraw?.());
 }
