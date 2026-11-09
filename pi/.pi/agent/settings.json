@@ -1,10 +1,13 @@
 {
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.0",
   "hideThinkingBlock": true,
   "packages": [
     "npm:pi-web-access",
     "npm:@narumitw/pi-btw"
   ],
   "defaultProvider": "deepseek",
-  "defaultModel": "deepseek-flash"
+  "defaultModel": "deepseek-flash",
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.45.0"
+  }
 }

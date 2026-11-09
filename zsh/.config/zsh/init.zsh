@@ -124,6 +124,8 @@ fi
 
 [ -f $HOME/.apikeys ] && source $HOME/.apikeys
 
+[ -d $HOME/go/bin ] && export PATH="$HOME/go/bin:$PATH"
+
 if [[ -e /run/.containerenv ]]; then
     # 容器内以 pacman 装的为准：不引入 ~/.local/bin、~/go/bin 和宿主的 go
     export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$HOME/bin"
@@ -131,7 +133,6 @@ else
     export PATH=~/.local/bin:$PATH
     export PATH=~/bin:$PATH
     export PATH=$PATH:/usr/local/go/bin   # Go (official tarball install)
-    [ -d $HOME/go/bin ] && export PATH="$HOME/go/bin:$PATH"
 fi
 
 
