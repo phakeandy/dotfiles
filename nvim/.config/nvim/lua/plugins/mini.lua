@@ -1,85 +1,16 @@
-vim.pack.add({
-	{ src = "https://github.com/echasnovski/mini.nvim", name = "mini.nvim" },
-})
-
-require("mini.icons").setup()
-
-require("mini.statusline").setup()
-require("mini.pairs").setup()
-
-require("mini.files").setup({
-	mappings = {
-		go_in_plus = "<CR>",
-		close = "<C-c>",
-	},
-})
-
-vim.keymap.set("n", "<leader>.", require("mini.files").open, { desc = "打开文件浏览器" })
-
-require("mini.cursorword").setup()
-require("mini.clue").setup({
-	triggers = {
-		-- Leader triggers
-		{ mode = { "n", "x" }, keys = "<Leader>" },
-
-		-- `[` and `]` keys
-		{ mode = "n", keys = "[" },
-		{ mode = "n", keys = "]" },
-
-		-- Built-in completion
-		{ mode = "i", keys = "<C-x>" },
-
-		-- `g` key
-		{ mode = { "n", "x" }, keys = "g" },
-
-		-- Marks
-		{ mode = { "n", "x" }, keys = "'" },
-		{ mode = { "n", "x" }, keys = "`" },
-
-		-- Registers
-		{ mode = { "n", "x" }, keys = '"' },
-		{ mode = { "i", "c" }, keys = "<C-r>" },
-
-		-- Window commands
-		{ mode = "n", keys = "<C-w>" },
-
-		-- `z` key
-		{ mode = { "n", "x" }, keys = "z" },
-	},
-	window = {
-		config = { width = "auto" },
-	},
-	clues = {
-		-- Enhance this by adding descriptions for <Leader> mapping groups
-		require("mini.clue").gen_clues.square_brackets(),
-		require("mini.clue").gen_clues.builtin_completion(),
-		require("mini.clue").gen_clues.g(),
-		require("mini.clue").gen_clues.marks(),
-		require("mini.clue").gen_clues.registers(),
-		require("mini.clue").gen_clues.windows(),
-		require("mini.clue").gen_clues.z(),
-	},
-})
-
-require("mini.ai").setup({
-	custom_textobjects = {
-		-- `ae` and `ie` text objects
-		e = function()
-			local n_lines = vim.fn.line("$")
-			local last_line = vim.fn.getline(n_lines)
-			return {
-				from = { line = 1, col = 1 },
-				to = { line = n_lines, col = math.max(last_line:len(), 1) },
-			}
-		end,
-	},
-})
--- require("mini.indentscope").setup()
-
-require("mini.completion").setup()
-
-local map_multistep = require("mini.keymap").map_multistep
-map_multistep("i", "<Tab>", { "pmenu_next" })
-map_multistep("i", "<S-Tab>", { "pmenu_prev" })
-map_multistep("i", "<CR>", { "pmenu_accept", "minipairs_cr" })
-map_multistep("i", "<BS>", { "minipairs_bs" })
+-- return {
+--   'nvim-mini/mini.icons',
+--   version = false,
+--   opts = {},
+--   config = function() {
+--
+--   }
+-- }
+return {
+  'nvim-mini/mini.nvim',
+  version = false,
+  config = function()
+    -- require('mini.pairs').setup()
+    require('mini.icons').setup()
+  end,
+}
