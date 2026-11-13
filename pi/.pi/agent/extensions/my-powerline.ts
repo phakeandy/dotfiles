@@ -1,20 +1,33 @@
 // Personal status-line and editor-chrome adaptation of nicobailon/pi-powerline-footer (MIT).
-// Only editor chrome and status display change; no editing/keybinding changes.
+// Only editor chrome, status display and fullscreen scroll steps change.
 import { basename } from "node:path";
 import { CustomEditor, type ExtensionAPI, type ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { truncateToWidth, visibleWidth, type TuiMouseEvent } from "@earendil-works/pi-tui";
+import {
+  isKeyRelease,
+  matchesKey,
+  truncateToWidth,
+  visibleWidth,
+  type TuiMouseEvent,
+} from "@earendil-works/pi-tui";
 
 const WIDGET = "my-powerline-status"; // Remove the previous version’s widget on reload.
 const RESET = "\x1b[0m";
 // Restore the original Nerd Font icons; allow a plain fallback if needed.
 const icon = process.env.POWERLINE_NERD_FONTS === "0"
-  ? { pi: "π", model: "", folder: "▱", branch: "⎇", context: "◫", sep: "❯" }
-  : { pi: "\uE22C", model: "\uEC19", folder: "\uF115", branch: "\uF126", context: "\uF1C0", sep: "\uE0B1" };
+  ? { pi: "π", model: "", folder: "▱", branch: "⎇", context: "◫", speed: "~", sep: "❯" }
+  : { pi: "\uE22C", model: "\uEC19", folder: "\uF115", branch: "\uF126", context: "\uF1C0", speed: "\uF0E7", sep: "\uE0B1" };
 // Fullscreen transcript hint. The stock one is a selected-bg pill reading
 // "↓ Jump to latest message · Ctrl+End" pinned to the last transcript row;
 // a single dim glyph (or nothing) is enough once scrolling hides the composer.
 const SCROLL_HINT = process.env.POWERLINE_SCROLL_HINT ?? "off"; // off | glyph | full
 const HIDE_EDITOR_ON_SCROLL = process.env.POWERLINE_HIDE_EDITOR !== "0";
+// Fullscreen: shift+up/down walk the transcript this many lines per press
+// (ctrl+up/down jump to the ends, bound in keybindings.json).
+const SCROLL_LINES = 2;
+// Output-speed readout (see speedReading). Segments give way in this order on a
+// narrow terminal; the context segment is never dropped.
+const SPEED = process.env.POWERLINE_SPEED !== "0";
+const TRIM_ORDER = ["folder", "branch", "speed", "model", "thinking", "session"] as const;
 
 // Fullscreen renderer surface we touch. The getters are public on TuiAltScreen,
 // and the object handed to the editor/footer factories is a proxy over the live
@@ -30,6 +43,7 @@ type AltScreenChrome = {
   scrollToEndIndicator?: (() => string) | undefined;
   // Private on TuiAltScreen, but the dock hands us the live instance.
   getPrimaryScrollView?: () => ScrollViewLike | undefined;
+  scrollBy?: (lines: number) => void;
 };
 
 function isAltScreen(tui: unknown): boolean {
@@ -61,10 +75,142 @@ function rainbow(text: string): string {
   return [...text].map((char, i) => color(palette[i % palette.length]!, char)).join("");
 }
 
+/**
+ * Output speed is a whole-response average: the clock starts when the request
+ * goes out and stops when the response ends.
+ *
+ * Decode-only timing was tried first and does not survive contact with real
+ * providers. KeyLights (anthropic-messages) delivers a 700-token Chinese reply
+ * as ~200 deltas inside 13-16ms while the response actually takes 7-9s, so a
+ * first-delta-to-last-delta clock reported either nothing or ~19000 tok/s. The
+ * provider's own `durationMs` is the only honest denominator, and averaging
+ * over it keeps one meaning instead of switching clock per provider.
+ *
+ * Below these bounds a reading describes the sample, not the model: a 15-token
+ * reply that took 80ms would report several hundred tok/s.
+ */
+export const SPEED_MIN_TOKENS = 20;
+export const SPEED_MIN_MS = 400;
+
+/**
+ * Token estimate for streamed text, used until the provider reports real usage
+ * (Anthropic does mid-stream, OpenAI-compatible endpoints only on the last
+ * chunk). Latin text runs ~4 chars/token; CJK and other full-width glyphs are
+ * about one token each, so counting them as 4 characters undercounts ~4x.
+ */
+export function estimateTokens(text: string): number {
+  let narrow = 0;
+  let wide = 0;
+  for (const char of text) {
+    if (isWideCodePoint(char.codePointAt(0) ?? 0)) wide += 1;
+    else narrow += 1;
+  }
+  return narrow / 4 + wide;
+}
+
+function isWideCodePoint(cp: number): boolean {
+  return (
+    (cp >= 0x1100 && cp <= 0x115f) || // Hangul Jamo
+    (cp >= 0x2600 && cp <= 0x27bf) || // Dingbats/emoji-ish symbols that render full width
+    (cp >= 0x2e80 && cp <= 0x303e) || // CJK radicals, Kangxi, CJK punctuation
+    (cp >= 0x3041 && cp <= 0x33ff) || // Kana, CJK compatibility
+    (cp >= 0x3400 && cp <= 0x4dbf) ||
+    (cp >= 0x4e00 && cp <= 0x9fff) ||
+    (cp >= 0xa000 && cp <= 0xa4cf) || // Yi
+    (cp >= 0xac00 && cp <= 0xd7a3) || // Hangul syllables
+    (cp >= 0xf900 && cp <= 0xfaff) ||
+    (cp >= 0xfe30 && cp <= 0xfe6f) ||
+    (cp >= 0xff00 && cp <= 0xff60) || // Full-width forms
+    (cp >= 0xffe0 && cp <= 0xffe6) ||
+    (cp >= 0x1f000 && cp <= 0x1faff) || // Emoji
+    (cp >= 0x20000 && cp <= 0x3fffd)
+  );
+}
+
+export function formatSpeed(tokensPerSecond: number): string {
+  return `${tokensPerSecond.toFixed(1)} tok/s`;
+}
+
+/**
+ * One response's speed sample, timed from the request leaving to the response
+ * ending. `estimate` accumulates streamed text and `actual` is the
+ * provider-reported output count (0 while unknown); a reading takes whichever
+ * is larger until the response ends, where `actual` wins.
+ */
+export type SpeedTracker =
+  | { phase: "idle"; startedAt: number }
+  | { phase: "streaming" | "done"; startedAt: number; at: number; estimate: number; actual: number };
+
+export type SpeedReading = { tps: number; streaming: boolean };
+
+/** Arm a new response at `startedAt`. The previous reading stays on screen until output resumes. */
+export function speedBegin(startedAt: number): SpeedTracker {
+  return { phase: "idle", startedAt };
+}
+
+export function speedDelta(
+  tracker: SpeedTracker,
+  delta: string,
+  at: number,
+  actual: number,
+): SpeedTracker {
+  const prior = tracker.phase === "idle" ? undefined : tracker;
+  return {
+    phase: "streaming",
+    startedAt: tracker.startedAt,
+    at,
+    estimate: (prior?.estimate ?? 0) + estimateTokens(delta),
+    actual: Math.max(prior?.actual ?? 0, actual),
+  };
+}
+
+export function speedEnd(tracker: SpeedTracker, at: number, actual: number): SpeedTracker {
+  // No delta ever arrived: there is no sample, and any tokens the provider
+  // reports for an empty response describe nothing worth a rate.
+  if (tracker.phase === "idle") return tracker;
+  return {
+    phase: "done",
+    startedAt: tracker.startedAt,
+    at,
+    estimate: tracker.estimate,
+    // A completed response's provider count is authoritative; keep the estimate
+    // only when the provider reported nothing at all.
+    actual: actual > 0 ? actual : tracker.actual,
+  };
+}
+
+/** Reading for the status line, or undefined when the sample cannot support one. */
+export function speedReading(tracker: SpeedTracker): SpeedReading | undefined {
+  if (tracker.phase === "idle") return undefined;
+  const tokens = tracker.phase === "done" && tracker.actual > 0
+    ? tracker.actual
+    : Math.max(tracker.estimate, tracker.actual);
+  const elapsed = tracker.at - tracker.startedAt;
+  if (tokens <= 0 || elapsed <= 0) return undefined;
+  if (tokens < SPEED_MIN_TOKENS || elapsed < SPEED_MIN_MS) return undefined;
+  return { tps: (tokens * 1000) / elapsed, streaming: tracker.phase === "streaming" };
+}
+
 export type ComposerVisibilityState = {
   hidden: boolean;
   lastViewportTop: number;
 };
+
+/**
+ * The dock's minimum height for the editor: zero while collapsed, otherwise
+ * never more rows than the editor actually paints. pi hard-codes `minSize: 3`
+ * (`chat-viewport.js`), but this editor folds the bottom border into the last
+ * input row, so a one-line composer renders two rows — the unclamped minimum
+ * leaves a blank row below it.
+ */
+export function composerMinSize(
+  hidden: boolean,
+  renderedRows: number,
+  original: number | undefined,
+): number {
+  if (hidden) return 0;
+  return Math.min(original ?? 0, renderedRows);
+}
 
 /**
  * Decide whether the collapsed composer hides itself on this frame.
@@ -155,6 +301,11 @@ export default function (pi: ExtensionAPI) {
   let branch = "";
   let sessionTag = "";
   let redraw: (() => void) | undefined;
+  // The reading is kept across messages: `message_start` only arms the reset so
+  // the last number stays on screen instead of blinking out during prefill.
+  let speed: SpeedTracker = speedBegin(0);
+  let awaitingFirstDelta = false;
+  let requestedAt = 0;
 
   pi.on("session_start", (_event, ctx) => {
     if (ctx.mode !== "tui") return;
@@ -186,17 +337,17 @@ export default function (pi: ExtensionAPI) {
         protected override renderTopBorder(width: number, hiddenLineCount: number): string {
           if (!active || width < 12) return color("#215477", "─".repeat(width));
           const contentWidth = width;
-          const parts: string[] = [];
-          const add = (part: string) => parts.push(part);
-          add(color("#febc38", sessionTag || icon.pi));
+          const parts: { key: (typeof TRIM_ORDER)[number]; text: string }[] = [];
+          const add = (key: (typeof TRIM_ORDER)[number], text: string) => parts.push({ key, text });
+          add("session", color("#febc38", sessionTag || icon.pi));
           const model = active.model?.name ?? active.model?.id ?? "no-model";
-          add(color("#d787af", `${icon.model ? icon.model + " " : ""}${model.replace(/^Claude /, "")}`));
+          add("model", color("#d787af", `${icon.model ? icon.model + " " : ""}${model.replace(/^Claude /, "")}`));
           const level = pi.getThinkingLevel();
           const short = ({ minimal: "min", medium: "med", xhigh: "xhigh" } as Record<string, string>)[level] ?? level;
-          add(level === "high" || level === "xhigh" || level === "max"
+          add("thinking", level === "high" || level === "xhigh" || level === "max"
             ? rainbow(`thinking:${short}`) : color("#b281d6", `thinking:${short}`));
-          add(color("#00afaf", `${icon.folder} ${basename(active.cwd) || active.cwd}`));
-          if (branch) add(color("#febc38", `${icon.branch} ${branch}`));
+          add("folder", color("#00afaf", `${icon.folder} ${basename(active.cwd) || active.cwd}`));
+          if (branch) add("branch", color("#febc38", `${icon.branch} ${branch}`));
           const usage = active.getContextUsage();
           const window = usage?.contextWindow ?? active.model?.contextWindow;
           if (window) {
@@ -204,14 +355,23 @@ export default function (pi: ExtensionAPI) {
             const tint = percent !== null && percent !== undefined && percent > 90 ? "#e06060"
               : percent !== null && percent !== undefined && percent > 70 ? "#febc38" : "#999999";
             const used = usage?.tokens == null ? "?" : compact(usage.tokens);
-            add(color(tint, `${icon.context} ${used}/${compact(window)}`));
+            add("context", color(tint, `${icon.context} ${used}/${compact(window)}`));
+          }
+          if (SPEED) {
+            const reading = speedReading(speed);
+            if (reading) {
+              const tint = reading.streaming ? "#999999" : "#6c6c6c";
+              add("speed", color(tint, `${icon.speed} ${formatSpeed(reading.tps)}`));
+            }
           }
           const separator = color("#808080", ` ${icon.sep} `);
-          const join = () => parts.filter(Boolean).join(separator);
-          // Drop optional segments first; always preserve the context segment.
-          for (const index of [3, 1, 2, 0]) {
+          const join = () => parts.map((part) => part.text).filter(Boolean).join(separator);
+          // Drop optional segments in TRIM_ORDER until the line fits; the
+          // context segment is not in that list, so it always survives.
+          for (const key of TRIM_ORDER) {
             if (visibleWidth(join()) + 1 <= contentWidth) break;
-            if (parts.length > index + 1) parts[index] = "";
+            const segment = parts.find((part) => part.key === key);
+            if (segment) segment.text = "";
           }
           const line = ` ${join()}`;
           const scroll = hiddenLineCount ? color("#808080", ` ↑${hiddenLineCount}`) : "";
@@ -238,23 +398,27 @@ export default function (pi: ExtensionAPI) {
 
         private dockEntry: StackEntryLike | undefined;
         private dockStack: StackLike | undefined;
-        private dockMinSize: number | undefined;
+        private dockOriginalMinSize: number | undefined;
 
         /**
-         * Drop the dock's minimum height for the editor while collapsed, and
-         * restore it otherwise. Returns whether the dock was found: without it
-         * the rows would only go blank, so the caller keeps the composer.
+         * Keep the dock's minimum height for the editor in sync with what the
+         * editor actually renders (and drop it to zero while collapsed).
+         * Returns whether the dock was found: without it the rows would only go
+         * blank, so the caller keeps the composer.
          */
-        private applyDockMinSize(hidden: boolean): boolean {
+        private applyDockMinSize(hidden: boolean, renderedRows: number): boolean {
           if (!this.dockEntry || !this.dockStack?.entries?.includes(this.dockEntry)) {
             const layout = (tui as unknown as { currentLayout?: LayoutFrameLike }).currentLayout;
             const found = findDockEntry(layout?.root, this);
             this.dockStack = found?.stack;
             this.dockEntry = found?.entry;
-            this.dockMinSize = found?.entry.minSize;
+            // Capture the baseline once: re-discovery may already see our value.
+            if (found && this.dockOriginalMinSize === undefined) {
+              this.dockOriginalMinSize = found.entry.minSize;
+            }
           }
           if (!this.dockEntry) return false;
-          this.dockEntry.minSize = hidden ? 0 : this.dockMinSize;
+          this.dockEntry.minSize = composerMinSize(hidden, renderedRows, this.dockOriginalMinSize);
           return true;
         }
 
@@ -284,22 +448,41 @@ export default function (pi: ExtensionAPI) {
           if (view) this.composer = stepComposerVisibility(this.composer, view, lines.length);
           else this.composer.hidden = false;
 
-          let hidden = this.composer.hidden;
-          if (hidden) {
-            hidden = this.applyDockMinSize(true);
-            if (!hidden) this.composer.hidden = false;
-          } else {
-            this.applyDockMinSize(false);
-          }
+          // Without the dock, collapsing would only paint the rows blank.
+          if (this.composer.hidden && !this.applyDockMinSize(true, 0)) this.composer.hidden = false;
+          if (!this.composer.hidden) this.applyDockMinSize(false, lines.length);
           patchScrollHint(tui);
           // No placeholder rows: the transcript grows by exactly these rows, so
           // scrolling up buys readable lines instead of blank space.
-          return hidden ? [] : lines;
+          return this.composer.hidden ? [] : lines;
         }
 
         override handleInput(data: string): void {
-          this.showComposer(); // Any keystroke brings the composer back.
+          // Scroll keys must not resurrect the collapsed composer: scrolling up
+          // would only hide it again, and scrolling down should keep it hidden
+          // until the live end is reached.
+          if (this.scrollViewByKey(data)) return;
+          this.showComposer(); // Any other keystroke brings the composer back.
           super.handleInput(data);
+        }
+
+        /**
+         * Fullscreen only: shift+up/down step the transcript a few lines at a
+         * time. They are deliberately unbound in keybindings.json so the key
+         * reaches the editor; the alt-screen actions can only move one line.
+         */
+        private scrollViewByKey(data: string): boolean {
+          const alt = tui as AltScreenChrome;
+          if (!isAltScreen(tui) || !alt.scrollBy || isKeyRelease(data)) return false;
+          if (matchesKey(data, "shift+up")) {
+            alt.scrollBy(-SCROLL_LINES);
+            return true;
+          }
+          if (matchesKey(data, "shift+down")) {
+            alt.scrollBy(SCROLL_LINES);
+            return true;
+          }
+          return false;
         }
 
         override insertTextAtCursor(text: string): void {
@@ -328,6 +511,47 @@ export default function (pi: ExtensionAPI) {
       }(tui, theme, kb);
     });
   });
+
+  pi.on("message_start", (event) => {
+    if (event.message.role !== "assistant") return;
+    // Average over the whole response: `timestamp` is when the request went
+    // out, which is also where the provider's own `durationMs` starts. The
+    // reading stays on screen until output resumes.
+    requestedAt = event.message.timestamp ?? Date.now();
+    awaitingFirstDelta = true;
+  });
+
+  if (SPEED) {
+    pi.on("message_update", (event) => {
+      const update = event.assistantMessageEvent;
+      const delta =
+        update.type === "text_delta" || update.type === "thinking_delta" || update.type === "toolcall_delta"
+          ? update.delta
+          : undefined;
+      if (delta === undefined) return;
+      if (awaitingFirstDelta) {
+        speed = speedBegin(requestedAt);
+        awaitingFirstDelta = false;
+      }
+      // `usage.output` reaches us mid-stream on Anthropic and only on the last
+      // chunk elsewhere; speedReading prefers it as soon as it exceeds the estimate.
+      speed = speedDelta(speed, delta, Date.now(), event.message.usage?.output ?? 0);
+      redraw?.();
+    });
+
+    pi.on("message_end", (event) => {
+      if (event.message.role !== "assistant") return;
+      // Aborted before the first delta: there is no sample for this response, and
+      // the tracker still holds the previous one — finalizing it with this
+      // response's end time would stretch its elapsed time into a wrong number.
+      if (awaitingFirstDelta) {
+        awaitingFirstDelta = false;
+        return;
+      }
+      speed = speedEnd(speed, Date.now(), event.message.usage?.output ?? 0);
+      redraw?.();
+    });
+  }
 
   pi.on("message_update", () => redraw?.());
   pi.on("turn_end", () => redraw?.());

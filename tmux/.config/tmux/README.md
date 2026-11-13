@@ -23,11 +23,27 @@ editing it either restart the server (`tmux kill-server`) or reload it:
 
 ## Theme
 
-The tokyonight status line is a machine-local checkout at
-`~/workspace/tmux-tokyonight` that is not part of this repo. When that path
-exists the config runs it; otherwise it falls back to an inline Tokyo Night
-style, so a fresh machine is themed without the checkout.
+Colours are Catppuccin and live in `themes/<flavour>.conf`, one palette file
+per flavour (currently `latte` and `mocha`). Each file holds style options only;
+the formats (`status-left`, `window-status-format`, lengths) stay in
+`tmux.conf`, so adding a flavour means copying a file and changing hex values.
 
-`fancy.conf.sh` is an alternative plugin-based config (tpm + catppuccin). tmux
-does not read it; it is a reference copy, and it overrides the status line with
-`set -g status-left ""` and friends, so do not run it on top of `tmux.conf`.
+Switching is one command, and it is the same one tmux's `prefix + T` menu runs:
+
+    theme mocha
+    theme            # show the current flavour and the available ones
+
+The script is `bin/bin/theme`. It writes the flavour to
+`~/.config/theme/flavour` (read by neovim), points `~/.tmux/theme.conf` at the
+palette, and reloads the running server, since tmux reads its config only once.
+`tmux.conf` sources `~/.tmux/theme.conf` and falls back to `themes/latte.conf`
+when the link does not exist yet.
+
+The terminal emulator is not touched; ghostty already switches itself with
+`theme = light:Catppuccin Latte,dark:Catppuccin Mocha`, and the script's names
+are chosen to match that pair.
+
+`fancy.conf.sh` is an alternative plugin-based config (tpm + catppuccin/tmux).
+tmux does not read it; it is a reference copy, and both the plugin's status
+formats and its `set -g status-left ""` would fight the palettes above, so do
+not run it on top of `tmux.conf`.

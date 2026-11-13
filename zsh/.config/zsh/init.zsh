@@ -99,6 +99,8 @@ alias glg='git log --oneline --graph' && compdef _git glg=git-log
 alias glgg='git log --oneline --graph -5' && compdef _git glgg=git-log
 alias gss='git status -s' && compdef _git gss=git-status
 alias gst='git status' && compdef _git gst=git-status
+alias gw='git worktree' && compdef _git gw=git-worktree
+alias gwl='git worktree list' && compdef _git gw=git-worktree
 alias gls='git ls-files' && compdef _git gls=git-ls-files
 alias wip="git commit -v -m wip"
 alias cx="codex --yolo"

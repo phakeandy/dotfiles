@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# theme [flavour] — switch the whole stack to one Catppuccin flavour.
+#
+#     theme mocha        # or: prefix + T inside tmux
+#     theme              # show the current flavour and what is available
+#
+# Three things follow the same name:
+#
+#   ~/.config/theme/flavour      state read by neovim (lua/config/theme.lua)
+#   ~/.tmux/theme.conf           symlink to ~/.config/tmux/themes/<flavour>.conf
+#   the running tmux server      reloaded, because it reads its config once
+#
+# An already-running neovim cannot be reached through an environment variable,
+# so the state lives in a file and every --listen server is asked to re-read it.
+# The terminal emulator is not touched: ghostty/wezterm pick their colours at
+# their own level (ghostty: theme = light:Ca... Latte,dark:Ca... Mocha).
+
+set -euo pipefail
+
+theme_dir="$HOME/.config/tmux/themes"
+state_file="$HOME/.config/theme/flavour"
+tmux_link="$HOME/.tmux/theme.conf"
+
+current() {
+    if [ -f "$state_file" ]; then
+        head -n1 "$state_file"
+    else
+        echo '(unset, tmux falls back to latte)'
+    fi
+}
+
+usage() {
+    printf 'usage: theme <flavour>\n\navailable:\n'
+    for f in "$theme_dir"/*.conf; do
+        printf '  %s\n' "$(basename "$f" .conf)"
+    done
+    printf '\ncurrent: %s\n' "$(current)"
+}
+
+name=${1:-}
+if [ -z "$name" ]; then
+    usage
+    exit 0
+fi
+
+palette="$theme_dir/$name.conf"
+if [ ! -f "$palette" ]; then
+    printf 'theme: no such palette: %s\n\n' "$name" >&2
+    usage >&2
+    exit 1
+fi
+
+mkdir -p "$(dirname "$state_file")" "$(dirname "$tmux_link")"
+printf '%s\n' "$name" >"$state_file"
+ln -sfn "$palette" "$tmux_link"
+
+if tmux has-session >/dev/null 2>&1; then
+    tmux source-file "$tmux_link" || true
+fi
+
+# Sockets look like $XDG_RUNTIME_DIR/nvim.<pid>.<n>; --server wants the path.
+for sock in "${XDG_RUNTIME_DIR:-/tmp}"/nvim.*; do
+    [ -S "$sock" ] || continue
+    nvim --server "$sock" \
+        --remote-expr 'luaeval("require(\"config.theme\").apply()")' >/dev/null 2>&1 || true
+done
+
+if [ -n "${TMUX:-}" ]; then
+    tmux display-message "theme: $name"
+fi

@@ -22,11 +22,13 @@ Stow links tracked files into `~/.pi/agent`; runtime state (`sessions/`, `npm/`,
 | `keybindings.json` | Personal key bindings |
 | `APPEND_SYSTEM.md` | Extra system-prompt instructions |
 | `extensions/alias.ts` | Shell-style aliases inside Pi |
-| `extensions/my-powerline.ts` | Status line / editor chrome; collapses the composer while scrolled (fullscreen) |
+| `extensions/my-powerline.ts` | Status line / editor chrome: output speed (`⚡ 42.0 tok/s`, whole-response average, `POWERLINE_SPEED=0` hides it); collapses the composer while scrolled and steps the transcript with `shift+↑` / `shift+↓` (fullscreen) |
 | `extensions/thinking-step.ts` | `alt+,` / `alt+.` step the thinking level up/down |
 | `extensions/quiet-tools.ts` | Collapsed tool output: intent + count instead of raw text (`ctrl+o` expands) |
+| `extensions/multi-skill.ts` | `/skill:a /skill:b …` expands several skills in one message; pi itself only expands the first |
 | `tests/quiet-tools.test.mjs` | Renderer tests for quiet-tools (`node tests/quiet-tools.test.mjs`) |
-| `tests/my-powerline.test.mjs` | Collapse-decision tests for my-powerline (`node tests/my-powerline.test.mjs`) |
+| `tests/multi-skill.test.mjs` | Chain parsing / expansion tests for multi-skill (`node tests/multi-skill.test.mjs`) |
+| `tests/my-powerline.test.mjs` | Collapse-decision and output-speed tests for my-powerline (`node tests/my-powerline.test.mjs`) |
 
 ## Company relay (KeyLights)
 

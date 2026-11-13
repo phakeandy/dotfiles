@@ -75,7 +75,9 @@ set listchars=tab:\»\ ,trail:·,nbsp:␣,precedes:<,extends:>
 set completeopt=longest,menuone,popup pumheight=6
 set mousescroll=ver:1 " For Ghosstty's bug: https://github.com/ghostty-org/ghostty/discussions/3955?utm_source=chatgpt.com
 set smoothscroll " smooth scroll while wrapped long lines
-colorscheme catppuccin
+" No :colorscheme here: this file runs before lua require('config.lazy') at
+" the bottom loads the plugins, so catppuccin is not on 'runtimepath' yet.
+" lua/plugins/colorscheme.lua applies the flavour from ~/.config/theme/flavour.
 
 lua << EOF
 vim.diagnostic.config({

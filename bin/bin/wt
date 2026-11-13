@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+# wt — 在同一个仓库的各 worktree 之间跳。
+#
+#   wt              用 fzf 选，打印选中那棵的路径（shell 函数负责 cd 过去）
+#   wt <查询>        不用 fzf：目录名或分支名含 <查询> 的那一棵
+#   wt -l           普通表格（没有终端时 wt 也退化成这个）
+#
+# 树来自 `git worktree list`，用的是共用 git dir，所以在任何一棵树里都能跑。
+# 不在仓库里时退回 $WT_ROOT（默认 k-cloud 工作区），因为新开的 shell 常站在 ~。
+#
+# 每行：目录 · 分支 · 改动文件数 · 最后一次提交 · 主题 · 路径（隐藏，fzf 输出它）。
+# 行首 `*` = 当前这棵，`●` = 有进程正把它当 cwd（比如另一个 pi session）。
+# 改动数一栏的 `?` = 那棵树 $WT_TIMEOUT 秒内没算完（通常在 /mnt 上，9P 太慢）。
+
+set -euo pipefail
+
+WT_ROOT=${WT_ROOT:-/home/andy/workspace/k-cloud}
+WT_TIMEOUT=${WT_TIMEOUT:-0.15}
+
+find_git_dir() {
+	local d
+	if d=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) && [ -n "$d" ]; then
+		printf '%s' "$d"
+		return 0
+	fi
+	if [ -d "$WT_ROOT/k-cloud.git" ]; then
+		printf '%s' "$WT_ROOT/k-cloud.git"
+		return 0
+	fi
+	d=$(git -C "$WT_ROOT" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+	[ -n "$d" ] && printf '%s' "$d"
+}
+
+# 路径 \t 分支；裸仓那条的分支写成 (bare)
+list_worktrees() {
+	git --git-dir="$1" worktree list --porcelain | awk '
+		/^worktree / { p = substr($0, 10) }
+		/^bare$/     { b = "(bare)" }
+		/^branch /   { b = substr($0, 8); sub(/^refs\/heads\//, "", b) }
+		/^detached$/ { b = "(detached)" }
+		/^$/         { if (p != "") { print p "\t" (b == "" ? "-" : b); p = b = "" } }
+		END          { if (p != "") print p "\t" (b == "" ? "-" : b) }
+	'
+}
+
+build_rows() {
+	local p b d dir cur mark c gd wl tmp busy_file i=0
+	local -A busy=() meta=()
+
+	gd=$(find_git_dir)
+	wl=$(list_worktrees "$gd")
+	cur=$(git rev-parse --show-toplevel 2>/dev/null || true)
+
+	tmp=$(mktemp -d) || return 1
+	busy_file=$(mktemp) || return 1
+
+	# 谁正开在哪棵树里。这趟扫 /proc 要 60ms，跟下面那些 git 调用一起跑，不占总时长。
+	(
+		for x in /proc/[0-9]*/cwd; do readlink "$x" 2>/dev/null || true; done | sort -u
+	) >"$busy_file" &
+
+	# 改动数与最后一次提交并发算：/mnt 上的树（9P）一次 status 要 1.4 秒，串行会把整个
+	# 列表拖住。算不完的那棵记 ?，不阻塞其余的。
+	while IFS=$'\t' read -r p b; do
+		[ "$b" = "(bare)" ] && continue
+		[ -d "$p" ] || continue
+		i=$((i + 1))
+		(
+			if out=$(timeout "$WT_TIMEOUT" git -C "$p" status --porcelain 2>/dev/null); then
+				d=$(printf '%s' "$out" | grep -c . || true)
+			else
+				d='?'
+			fi
+			age='-'
+			subj='-'
+			if info=$(git -C "$p" log -1 --format='%cr%x09%s' 2>/dev/null); then
+				age=${info%%$'\t'*}
+				subj=${info#*$'\t'}
+			fi
+			printf '%s\t%s\t%s\t%s\n' "$p" "$d" "$age" "$subj" >"$tmp/$i"
+		) &
+	done <<<"$wl"
+	wait || true
+
+	while IFS= read -r c; do busy["$c"]=1; done <"$busy_file"
+	for f in "$tmp"/*; do
+		[ -s "$f" ] || continue
+		IFS=$'\t' read -r p d age subj <"$f"
+		meta["$p"]="$d"$'\t'"$age"$'\t'"$subj"
+	done
+	rm -rf "$tmp" "$busy_file"
+
+	while IFS=$'\t' read -r p b; do
+		[ "$b" = "(bare)" ] && continue
+		[ -d "$p" ] || continue
+		dir=${p##*/}
+		mark='  '
+		[ "$p" = "$cur" ] && mark='* '
+		for c in "${!busy[@]}"; do
+			case "$c" in
+			"$p" | "$p"/*)
+				mark="${mark:0:1}●"
+				break
+				;;
+			esac
+		done
+		if [ -n "${meta[$p]:-}" ]; then
+			IFS=$'\t' read -r d age subj <<<"${meta[$p]}"
+		else
+			d='?'
+			age='-'
+			subj='-'
+		fi
+		printf '%s%-26s\t%-28s\t%3s\t%-14s\t%-52s\t%s\t%s\n' \
+			"$mark" "$dir" "$b" "$d" "$age" "${subj:0:52}" "$p" \
+			"$([ "$mark" = '* ' ] && echo 0 || echo 1)$(printf '%s' "$dir" | tr '[:upper:]' '[:lower:]')"
+	done <<<"$wl"
+}
+
+# 第 7 列是排序键（当前这棵在最前，其余按目录名），只用于 sort
+rows=$(build_rows | sort -t$'\t' -k7,7 | cut -f1-6)
+
+[ -n "$rows" ] || {
+	echo "wt: 这里没有 worktree" >&2
+	exit 1
+}
+
+case "${1:-}" in
+-l | --list)
+	printf '%s\n' "$rows" | awk -F'\t' '{ printf "%-28s %-28s %3s  %-14s %s\n", $1, $2, $3, $4, $5 }'
+	exit 0
+	;;
+-h | --help)
+	sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
+	exit 0
+	;;
+esac
+
+if [ -n "${1:-}" ]; then
+	q=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+	hits=$(printf '%s\n' "$rows" | awk -F'\t' -v q="$q" 'tolower($1 " " $2) ~ q { print $1 "\t" $6 }')
+	count=$(printf '%s\n' "$hits" | grep -c . || true)
+	case "$count" in
+	0)
+		echo "wt: 没有目录名或分支名含「$1」的树" >&2
+		exit 1
+		;;
+	1)
+		printf '%s\n' "$hits" | cut -f2
+		exit 0
+		;;
+	*)
+		echo "wt: 「$1」对上不止一棵，说清楚一点：" >&2
+		printf '%s\n' "$hits" | awk -F'\t' '{ printf "  %s\n", $1 }' >&2
+		exit 1
+		;;
+	esac
+fi
+
+# fzf 的界面走 /dev/tty，所以只要求 stdin 是终端；stdout 通常是 $(...) 的管道。
+if [ ! -t 0 ]; then
+	echo "wt: 这里没有终端，下面直接给表格；要跳转用 wt <查询>" >&2
+	exec "$0" -l
+fi
+
+sel=$(
+	printf '%s\n' "$rows" |
+		fzf --ansi --no-sort --delimiter='\t' --with-nth=1,2,3,4,5 \
+			--border-label ' worktrees ' --prompt 'wt  ' \
+			--header ' enter = cd    esc = 取消 ' \
+			--preview 'git -C {6} log --color=always --decorate --oneline -8; echo; timeout 2 git -C {6} status -sb | head -12' \
+			--preview-window 'down:55%:wrap'
+) || exit 0
+
+[ -n "$sel" ] && printf '%s\n' "$sel" | awk -F'\t' '{ print $6 }'

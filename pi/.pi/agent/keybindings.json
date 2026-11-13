@@ -4,8 +4,10 @@
   "tui.altScreen.pageDown": [],
   "tui.altScreen.halfPageUp": "pageUp",
   "tui.altScreen.halfPageDown": "pageDown",
-  "tui.altScreen.top": ["ctrl+home", "shift+up"],
-  "tui.altScreen.bottom": ["ctrl+end", "shift+down"],
+  "tui.altScreen.top": ["ctrl+home", "ctrl+up"],
+  "tui.altScreen.bottom": ["ctrl+end", "ctrl+down"],
+  "tui.altScreen.previousPrompt": ["alt+up"],
+  "tui.altScreen.nextPrompt": ["alt+down"],
   "tui.editor.historyPrevious": "ctrl+p",
   "tui.editor.undo": ["ctrl+-", "ctrl+shift+-", "ctrl+shift+_"],
   "app.model.cycleForward": []
