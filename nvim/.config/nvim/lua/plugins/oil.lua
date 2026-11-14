@@ -8,6 +8,17 @@ local entrypath = function()
   return vim.fs.joinpath(dir, entry.name)
 end
 
+-- Copy the path of the entry under the cursor to the system clipboard.
+-- `modifier` is a fnamemodify modifier, e.g. ':.' or ':p:~'.
+local yank_path = function(modifier)
+  return function()
+    local path = entrypath()
+    if not path then return end
+
+    vim.fn.setreg('+', vim.fn.fnamemodify(path, modifier))
+  end
+end
+
 local cwd = function() return require('oil').get_current_dir() end
 
 return {
@@ -23,21 +34,13 @@ return {
   opts = {
     columns = {},
     keymaps = {
-      ['<leader>y'] = {
+      ['yp'] = {
         desc = 'Copy relative filepath to system clipboard',
-        callback = function()
-          if entrypath() then
-            vim.cmd(string.format('let @+ = fnamemodify(%s, :.)', entrypath()))
-          end
-        end,
+        callback = yank_path(':.'),
       },
-      ['<leader>Y'] = {
+      ['yP'] = {
         desc = 'Copy filepath to system clipboard',
-        callback = function()
-          if entrypath() then
-            vim.cmd(string.format('let @+ = fnamemodify(%s, :p:~)', entrypath()))
-          end
-        end,
+        callback = yank_path(':p:~'),
       },
       ['<leader>x'] = {
         desc = 'Run shell command in this directory',

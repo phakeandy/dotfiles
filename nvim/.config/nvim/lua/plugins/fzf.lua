@@ -5,11 +5,6 @@ return {
   keys = {
     { '<leader>f', '<cmd>FzfLua files<cr>', desc = 'Find files' },
     { '<leader>s', '<cmd>FzfLua builtin<cr>', desc = 'Fzf builtin' },
-    {
-      '<leader>e',
-      ':Files <C-R>=fnameescape(expand("%:~:h"))<CR>/',
-      desc = 'Find files in buffer directory',
-    },
     { '<leader>,', '<cmd>History<cr>', desc = 'Oldfiles' },
     { '<leader>a', '<cmd>FzfLua resume<cr>', desc = 'Fzf resume' },
     { '<leader>b', '<cmd>FzfLua buffers<cr>', desc = 'Fzf buffers' },

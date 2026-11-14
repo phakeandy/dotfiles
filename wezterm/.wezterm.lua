@@ -1,11 +1,16 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
+-- Platform
+local is_windows = wezterm.target_triple:find("windows") ~= nil
+local is_macos = wezterm.target_triple:find("darwin") ~= nil
+local is_linux = not is_windows and not is_macos
+
 -- Appearance
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
-config.color_scheme = 'Catppuccin Latte'
+config.color_scheme = "Catppuccin Mocha"
 
-config.window_decorations = "RESIZE"
+config.window_decorations = "TITLE | RESIZE"
 
 -- Tab
 config.hide_tab_bar_if_only_one_tab = true
@@ -18,7 +23,9 @@ config.font_size = 12
 config.adjust_window_size_when_changing_font_size = false
 
 -- On Windows
--- config.default_domain = "WSL:Debian"
+if is_windows then
+	config.default_domain = "WSL:Debian"
+end
 
 -- Keymapping
 config.keys = {

@@ -7,3 +7,4 @@ Exec=fcitx5 -d --replace
 Terminal=false
 NoDisplay=true
 X-GNOME-Autostart-enabled=true
+NotShowIn=KDE;

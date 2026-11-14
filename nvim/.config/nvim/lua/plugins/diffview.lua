@@ -8,6 +8,7 @@ return {
     'DiffviewFocusFiles',
     'DiffviewRefresh',
   },
+  enabled = false,
   keys = {
     -- { '<leader>gst', '<cmd>DiffviewOpen<cr>', desc = 'Diffview: open changes' },
     -- {

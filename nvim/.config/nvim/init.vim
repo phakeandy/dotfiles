@@ -32,9 +32,9 @@ function! CopyVisualRangeToClipboard()
   let text = file_path . ":" . start_line . "-" . end_line
   let @+ = text
 endfunction
-vnoremap <silent> <leader>y :call CopyVisualRangeToClipboard()<CR>
-nnoremap <silent> <leader>yp :let @+ = expand("%:p:~")<cr>
-nnoremap <silent> <leader>yy :let @+ = expand("%:p:~") . ":" . line(".")<cr>
+vnoremap <silent> Y :call CopyVisualRangeToClipboard()<CR>
+nnoremap <silent> yp :let @+ = expand("%:p:~")<cr>
+nnoremap <silent> yP :let @+ = expand("%:p:~") . ":" . line(".")<cr>
 
 set number relativenumber
 set clipboard=unnamedplus
@@ -159,6 +159,13 @@ nnoremap zh 10zh
 augroup QuickfixWindow
   autocmd!
   autocmd FileType qf 6wincmd _
+augroup END
+
+" tmux dumps the pane scrollback to this file. It is a log to
+" read, not code to edit: highlight it as shell and start at the newest line.
+augroup TmuxScrollback
+  autocmd!
+  autocmd BufReadPost /tmp/tmux_buffer_tmp setlocal filetype=sh nonumber norelativenumber | normal! G
 augroup END
 
 augroup YankHighlight

@@ -13,7 +13,14 @@ return {
       snippets = { preset = 'luasnip' },
       sources = {
         -- AI suggestions use Minuet virtual text, not the completion menu.
-        default = { 'lsp', 'path', 'buffer', 'snippets' },
+        -- 'zh' 是自定义中文分词源（lua/zh_cmp），在中文里按词补全而不是按句
+        default = { 'lsp', 'path', 'zh', 'buffer', 'snippets' },
+        providers = {
+          zh = {
+            name = 'zh',
+            module = 'zh_cmp',
+          },
+        },
       },
       -- completion = { trigger = { prefetch_on_insert = false } },
 

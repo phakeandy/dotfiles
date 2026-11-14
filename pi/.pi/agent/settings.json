@@ -1,13 +1,21 @@
 {
-  "lastChangelogVersion": "1.5.0",
+  "lastChangelogVersion": "1.5.2",
   "hideThinkingBlock": true,
   "packages": [
     "npm:pi-web-access",
-    "npm:@narumitw/pi-btw"
+    "npm:@narumitw/pi-btw",
+    "npm:pi-context-view"
   ],
   "defaultProvider": "deepseek",
   "defaultModel": "deepseek-flash",
   "extensionChangelogVersions": {
-    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.45.0"
-  }
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.45.0",
+    "{\"source\":\"npm:pi-context-view\",\"scope\":\"user\"}": "0.8.4"
+  },
+  "editorPaddingX": 1,
+  "extensions": [
+    "-extensions/herdr-agent-state.ts"
+  ],
+  "treeFilterMode": "no-tools",
+  "fullscreenWheelScrollLines": "auto"
 }
