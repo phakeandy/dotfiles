@@ -19,7 +19,7 @@
 import type {
 	BashToolDetails,
 	EditToolDetails,
-	GrepToolDetails,
+	// GrepToolDetails, // quiet-tools: grep/find/ls 不再注册，普通会话 bash-first
 	ReadToolDetails,
 	Theme,
 	TruncationResult,
@@ -28,9 +28,9 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import {
 	createBashToolDefinition,
 	createEditToolDefinition,
-	createFindToolDefinition,
-	createGrepToolDefinition,
-	createLsToolDefinition,
+	// createFindToolDefinition, // quiet-tools: grep/find/ls 不再注册，普通会话 bash-first
+	// createGrepToolDefinition, // quiet-tools: grep/find/ls 不再注册，普通会话 bash-first
+	// createLsToolDefinition, // quiet-tools: grep/find/ls 不再注册，普通会话 bash-first
 	createReadToolDefinition,
 	createWriteToolDefinition,
 } from "@earendil-works/pi-coding-agent";
@@ -242,6 +242,14 @@ export default function quietTools(pi: ExtensionAPI) {
 	const bash = createBashToolDefinition(cwd);
 	pi.registerTool({
 		...bash,
+		// 不要在 snippet/description 里提 grep/find：它们会诱导模型用老工具，
+		// 而不是 rg/fd。description 保留 pi 原始的截断/超时说明。
+		description: `${bash.description} Prefer rg and fd over grep and find for file search.`,
+		promptSnippet: "Execute shell commands (rg, fd, git, tests, builds, processes)",
+		promptGuidelines: [
+			...(bash.promptGuidelines ?? []),
+			"Prefer rg and fd over grep and find when searching files from the shell",
+		],
 		renderCall(args, theme, context) {
 			const timeout = args.timeout ? theme.fg("dim", ` (timeout ${args.timeout}s)`) : "";
 			const command = context?.expanded ? (args.command ?? "") : briefCommand(args.command ?? "");
@@ -258,62 +266,11 @@ export default function quietTools(pi: ExtensionAPI) {
 		},
 	});
 
-	// --- grep ---------------------------------------------------------------
-	const grep = createGrepToolDefinition(cwd);
-	pi.registerTool({
-		...grep,
-		renderCall(args, theme) {
-			let detail = theme.fg("accent", `/${clip(args.pattern ?? "", 40)}/`);
-			detail += theme.fg("toolOutput", ` in ${shortPath(args.path ?? ".")}`);
-			if (args.glob) detail += theme.fg("dim", ` (${args.glob})`);
-			return new Text(`${theme.fg("toolTitle", theme.bold("grep"))} ${detail}`, 0, 0);
-		},
-		renderResult(result, options, theme, context) {
-			return renderResult(result, options, theme, context, (text, details, t) =>
-				countJudgement(
-					text,
-					t,
-					["match", "matches"],
-					"No matches",
-					truncationNote((details as GrepToolDetails | undefined)?.truncation, t),
-				),
-			);
-		},
-	});
-
-	// --- find ---------------------------------------------------------------
-	const find = createFindToolDefinition(cwd);
-	pi.registerTool({
-		...find,
-		renderCall(args, theme) {
-			let detail = theme.fg("accent", clip(args.pattern ?? "", 40));
-			detail += theme.fg("toolOutput", ` in ${shortPath(args.path ?? ".")}`);
-			return new Text(`${theme.fg("toolTitle", theme.bold("find"))} ${detail}`, 0, 0);
-		},
-		renderResult(result, options, theme, context) {
-			return renderResult(result, options, theme, context, (text, _details, t) =>
-				countJudgement(text, t, ["file", "files"], "No files"),
-			);
-		},
-	});
-
-	// --- ls -----------------------------------------------------------------
-	const ls = createLsToolDefinition(cwd);
-	pi.registerTool({
-		...ls,
-		renderCall(args, theme) {
-			return new Text(
-				`${theme.fg("toolTitle", theme.bold("ls"))} ${theme.fg("accent", shortPath(args.path ?? "."))}`,
-				0,
-				0,
-			);
-		},
-		renderResult(result, options, theme, context) {
-			return renderResult(result, options, theme, context, (text, _details, t) =>
-				countJudgement(text, t, ["entry", "entries"]),
-			);
-		},
-	});
+	// --- grep / find / ls ---------------------------------------------------
+	// 故意不注册。pi 内置默认工具是 read/bash/edit/write；这里重新注册内置
+	// 定义只是为换渲染，但扩展工具注册即 active，会把 grep/find/ls 塞回模型
+	// 的工具列表，导致普通会话不是 bash-first。只读子代理仍走 pi 的
+	// createReadOnlyToolDefinitions，不受影响。
 
 	// --- edit ---------------------------------------------------------------
 	const edit = createEditToolDefinition(cwd);

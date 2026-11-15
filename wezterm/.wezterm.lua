@@ -22,7 +22,6 @@ config.font = wezterm.font_with_fallback({ "Iosevka Nerd Font Mono", "Noto Sans 
 config.font_size = 12
 config.adjust_window_size_when_changing_font_size = false
 
--- On Windows
 if is_windows then
 	config.default_domain = "WSL:Debian"
 end
