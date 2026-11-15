@@ -179,6 +179,9 @@ let g:loaded_netrw = 0
 
 lua require("config.lazy")
 lua require('config.mcursor')
+" markdown 行内 text object：i*/a* 粗体、i_/a_ 斜体、i`/a` 代码、i~/a~ 删除线、
+" il/al 链接、im/am 最内层行内对象。实现见 lua/config/mdtextobj.lua。
+lua require('config.mdtextobj')
 
 function! s:Translate() range
   let l:tmp = tempname()

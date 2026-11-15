@@ -29,14 +29,13 @@ return {
   config = function(_, opts)
     require('nvim-tree').setup(opts)
 
-    -- 借 fern 的 smart_quit（autoload/fern/internal/drawer/smart_quit.vim）：
-    -- 关窗命令执行时先打标记；等焦点落到树上、且树是唯一窗口时，再把树 quit 掉。
-    -- 不能在 WinClosed 里关窗口：那会中断正在执行的 :q，报 E855。
+    -- 借 fern 的 smart_quit：关窗命令先打标记，等焦点落到树上、且树是唯一窗口时再收尾。
+    -- 收尾必须延后一拍（vim.schedule）：在 :q 的 autocmd 里直接关窗口会中断外层命令，
+    -- 报 E855: Autocommands caused command to abort。
     local quit_pending = false
     local function mark_quit()
       if vim.v.exiting ~= vim.NIL then return end
       quit_pending = true
-      -- fern 用 timer_start(0) 让标记只活一个事件循环；这里给 100ms 余量
       vim.defer_fn(function() quit_pending = false end, 100)
     end
 
@@ -50,9 +49,15 @@ return {
       callback = function()
         if not quit_pending or vim.v.exiting ~= vim.NIL then return end
         if vim.bo.filetype ~= 'NvimTree' then return end
-        if #vim.api.nvim_tabpage_list_wins(0) ~= 1 then return end
         quit_pending = false
-        pcall(vim.cmd, 'quit')
+        vim.schedule(function()
+          if vim.v.exiting ~= vim.NIL then return end
+          -- 条件可能在下一拍前变了，重新确认一次
+          local wins = vim.api.nvim_tabpage_list_wins(0)
+          if #wins ~= 1 then return end
+          if vim.bo[vim.api.nvim_win_get_buf(wins[1])].filetype ~= 'NvimTree' then return end
+          pcall(vim.cmd, 'quit')
+        end)
       end,
     })
   end,
