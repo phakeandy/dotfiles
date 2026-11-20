@@ -21,8 +21,8 @@ const icon = process.env.POWERLINE_NERD_FONTS === "0"
 // a single dim glyph (or nothing) is enough once scrolling hides the composer.
 const SCROLL_HINT = process.env.POWERLINE_SCROLL_HINT ?? "off"; // off | glyph | full
 const HIDE_EDITOR_ON_SCROLL = process.env.POWERLINE_HIDE_EDITOR !== "0";
-// Fullscreen: shift+up/down walk the transcript this many lines per press
-// (ctrl+up/down jump to the ends, bound in keybindings.json).
+// Fullscreen: shift+up/down (and alt+k/alt+j) walk the transcript this many
+// lines per press (ctrl+up/down jump to the ends, bound in keybindings.json).
 const SCROLL_LINES = 2;
 // Output-speed readout (see speedReading). Segments give way in this order on a
 // narrow terminal; the context segment is never dropped.
@@ -467,20 +467,24 @@ export default function (pi: ExtensionAPI) {
         }
 
         /**
-         * Fullscreen only: shift+up/down step the transcript a few lines at a
-         * time. They are deliberately unbound in keybindings.json so the key
-         * reaches the editor; the alt-screen actions can only move one line.
+         * Fullscreen only: shift+up/down and alt+k/alt+j step the transcript a
+         * few lines at a time. They are deliberately unbound in keybindings.json
+         * so the key reaches the editor; the alt-screen actions can only move
+         * one line.
          */
         private scrollViewByKey(data: string): boolean {
           const alt = tui as AltScreenChrome;
           if (!isAltScreen(tui) || !alt.scrollBy || isKeyRelease(data)) return false;
-          if (matchesKey(data, "shift+up")) {
-            alt.scrollBy(-SCROLL_LINES);
-            return true;
-          }
-          if (matchesKey(data, "shift+down")) {
-            alt.scrollBy(SCROLL_LINES);
-            return true;
+          for (const [key, lines] of [
+            ["shift+up", -SCROLL_LINES],
+            ["alt+k", -SCROLL_LINES],
+            ["shift+down", SCROLL_LINES],
+            ["alt+j", SCROLL_LINES],
+          ] as const) {
+            if (matchesKey(data, key)) {
+              alt.scrollBy(lines);
+              return true;
+            }
           }
           return false;
         }
