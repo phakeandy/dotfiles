@@ -143,10 +143,20 @@ vim.keymap.set('n', '<leader>d', function()
   local diffview = package.loaded['diffview.lib']
   if diffview and diffview.get_current_view() then
     vim.cmd('DiffviewClose')
-  else
-    vim.cmd('bdelete')
+    return
   end
-end, { desc = 'Close Diffview or delete buffer' })
+
+  -- 删掉当前 buffer 之后就没有别的 listing buffer 了：直接退掉整个 Neovim，
+  -- 而不是留一个空窗口。'confirm' 已开着，未保存时还是原生那套 yes/no/cancel。
+  local cur = vim.api.nvim_get_current_buf()
+  local rest = 0
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if buf ~= cur and vim.bo[buf].buflisted then
+      rest = rest + 1
+    end
+  end
+  vim.cmd(rest == 0 and 'quitall' or 'bdelete')
+end, { desc = 'Close Diffview, or quit Neovim when last buffer' })
 EOF
 " 未保存时 :q / :qa 弹原生确认框（a=全部保存, d=全部丢弃），切走的 buffer 保留在内存里
 set confirm hidden
