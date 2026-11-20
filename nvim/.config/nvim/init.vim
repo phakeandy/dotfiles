@@ -63,7 +63,6 @@ set cursorline
 set cmdheight=1 laststatus=1
 set showmode showcmd ruler
 set statusline=
-"set noshowmode
 "set wrap
 set exrc
 set splitright splitbelow
