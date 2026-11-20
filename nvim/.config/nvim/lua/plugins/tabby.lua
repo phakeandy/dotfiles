@@ -1,63 +1,14 @@
--- tabby.nvim：把 Neovim 的 tabpage 画成一条工作区标签栏。
+-- tabby.nvim：把 Neovim 的 tabpage 当工作区用（替代 tmux window 的那一层）。
 --
--- 它只负责“画”，tabpage 本身还是 Neovim 原生的（:tabnew / gt / gT / g<Tab>），
--- 所以关掉这个插件，一切键位照旧 —— 这是用来替代 tmux window 的那一层：
--- 一个 tab 就是一个工作区（编辑器 + 侧边栏 + 终端 + lazygit），
--- 当前 tab 里的窗口列在右边，相当于 tmux 的 pane 一览。
+-- 只做三件事：选 preset、打开常显、把操作绑到键上。渲染全交给插件自己的
+-- `active_wins_at_tail` preset —— 左边 tab，右边当前 tab 的窗口；标签名用
+-- 插件默认的 fallback（当前窗口文件名 + `[n+]` 窗口数），配色用插件默认的
+-- TabLine/TabLineSel 那套高亮组，所以跟 colorscheme 天然一致。
 --
--- 高亮不写死颜色：每次重绘都从当前 colorscheme 的 palette 里取，
--- 所以 ~/bin/theme 切换 latte/mocha 时这条 bar 会跟着变。
-local function palette()
-  local ok, p = pcall(function()
-    return require('catppuccin.palettes').get_palette()
-  end)
-  return ok and p or nil
-end
-
--- 只有 palette 用不了（比如换掉 catppuccin）时才用到这些兜底色。
-local fallback = {
-  bg = '#1e1e2e',
-  fg = '#cdd6f4',
-  dim = '#6c7086',
-  accent = '#b4befe',
-  warn = '#fab387',
-}
-
-local function colors()
-  local p = palette()
-  if not p then return fallback end
-  return {
-    bg = p.mantle,
-    fg = p.text,
-    dim = p.overlay1,
-    accent = p.lavender,
-    warn = p.peach,
-    sel_bg = p.surface1,
-    win_bg = p.surface0,
-    crust = p.crust,
-  }
-end
-
--- 终端 buffer 是 term://<cwd>//<pid>，直接取尾段会显示成一堆数字，
--- 所以取 cwd 的 basename（也就是 tmux window 里最想看到的那样）。
-local function tail_name(bufid)
-  local name = vim.api.nvim_buf_get_name(bufid)
-  if name == '' then return '' end
-  if vim.bo[bufid].buftype == 'terminal' then
-    local dir = name:gsub('^term://', ''):gsub('//%d+$', ''):gsub('//.*$', '')
-    local base = vim.fn.fnamemodify(dir, ':t')
-    return base ~= '' and base or 'term'
-  end
-  return vim.fn.fnamemodify(name, ':t')
-end
-
-local function win_label(win)
-  local buf = win.buf()
-  local name = tail_name(buf.id)
-  if name ~= '' then return name end
-  return buf.type() == 'terminal' and 'term' or '[No Name]'
-end
-
+-- 想换布局只改 preset 一行：
+--   active_wins_at_tail / active_wins_at_end / tab_with_top_win /
+--   active_tab_with_wins / tab_only
+-- 想看每行画的是什么：~/.local/share/nvim/lazy/tabby.nvim/lua/tabby/presets.lua
 return {
   'nanozuki/tabby.nvim',
   lazy = false,
@@ -68,66 +19,18 @@ return {
   end,
   ---@type TabbyConfig
   opts = {
+    preset = 'active_wins_at_tail',
     option = {
-      tab_name = {
-        -- 没手动改名时用 tab 里第一个窗口（左上角那个）的文件名，
-        -- 而不是当前焦点窗口：切窗口时标签名不该跟着变。
-        name_fallback = function(tabid)
-          local wins = vim.api.nvim_tabpage_list_wins(tabid)
-          if #wins == 0 then return '[No Name]' end
-          return tail_name(vim.api.nvim_win_get_buf(wins[1]))
-        end,
-      },
-      buf_name = {
-        -- 窗口一览里只留文件名，路径交给 fzf / oil 去折腾。
-        mode = 'tail',
+      nerdfont = true,
+      theme = {
+        fill = 'TabLineFill',
+        head = 'TabLine',
+        current_tab = 'TabLineSel',
+        tab = 'TabLine',
+        win = 'TabLine',
+        tail = 'TabLine',
       },
     },
-    line = function(line)
-      local c = colors()
-      local fill = { bg = c.bg, fg = c.dim }
-      local tab_hl = { bg = c.bg, fg = c.dim }
-      local tab_cur_hl = { bg = c.sel_bg, fg = c.fg, bold = true }
-      local win_hl = { bg = c.bg, fg = c.dim }
-      local win_cur_hl = { bg = c.win_bg, fg = c.accent, bold = true }
-
-      local function tab_changed(tab)
-        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab.id)) do
-          if vim.bo[vim.api.nvim_win_get_buf(win)].modified then return true end
-        end
-        return false
-      end
-
-      return {
-        { ' ', hl = fill },
-        line.tabs().foreach(function(tab)
-          local cur = tab.is_current()
-          local hl = cur and tab_cur_hl or tab_hl
-          local key = tab.in_jump_mode() and tab.jump_key() or tostring(tab.number())
-          local name = tab.name()
-          if name == '' then name = '[No Name]' end
-          return {
-            { ' ' .. key .. ' ', hl = { bg = hl.bg, fg = cur and c.accent or c.dim, bold = true } },
-            { name:gsub('%%', '%%%%') .. ' ', hl = hl },
-            { tab_changed(tab) and '●' or '', hl = { bg = hl.bg, fg = c.warn } },
-            cur and tab.close_btn(' ×') or { "", hl = { bg = hl.bg } },
-            { ' ', hl = fill },
-            hl = fill,
-          }
-        end),
-        line.spacer(),
-        line.wins_in_tab(line.api.get_current_tab()).foreach(function(win)
-          local cur = win.is_current()
-          local hl = cur and win_cur_hl or win_hl
-          return {
-            { ' ' .. win_label(win) .. ' ', hl = hl },
-            { ' ', hl = fill },
-          }
-        end),
-        { ' ', hl = fill },
-        hl = fill,
-      }
-    end,
   },
   keys = {
     { '<leader>tn', '<cmd>tabnew<cr>', desc = 'New tab' },
@@ -140,8 +43,8 @@ return {
       function()
         local name = vim.fn.input('Tab name: ')
         if name == '' then return end
-        -- 走 feature API 而不是 :Tabby rename_tab，后者按空格切参数，名字里
-        -- 带空格会被截断。
+        -- 走 feature API 而不是 :Tabby rename_tab，后者按空格切参数，
+        -- 名字里带空格会被截断。
         require('tabby.feature.tab_name').set(0, name)
       end,
       desc = 'Rename tab',
