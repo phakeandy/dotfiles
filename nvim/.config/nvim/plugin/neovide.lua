@@ -18,9 +18,7 @@ local FONTS = 'Iosevka Nerd Font Mono,Maple Mono NF CN'
 local DEFAULT_SIZE = 15
 local font_size = DEFAULT_SIZE
 
-local function apply_font()
-  vim.o.guifont = ('%s:h%s'):format(FONTS, font_size)
-end
+local function apply_font() vim.o.guifont = ('%s:h%s'):format(FONTS, font_size) end
 
 apply_font()
 
@@ -42,37 +40,12 @@ end, { desc = 'Font size reset' })
 
 -- GUI 里的粘贴：插入/命令行用 Ctrl+R +，普通/可视用 "+p。
 -- 复制不用管：clipboard=unnamedplus 已经把 y 同步到系统剪贴板了。
-map({ 'i', 'c' }, '<C-S-V>', '<C-r>+', { noremap = true, desc = 'Paste clipboard' })
+map(
+  { 'i', 'c', 't' },
+  '<C-S-V>',
+  '<C-r>+',
+  { noremap = true, desc = 'Paste clipboard' }
+)
 map({ 'n', 'v' }, '<C-S-V>', '"+p', { noremap = true, desc = 'Paste clipboard' })
 
--- 动画：够顺滑但别抢戏。VFX 粒子关掉，光标轨迹留一点点。
-vim.g.neovide_scale_factor = 1.0
-vim.g.neovide_cursor_animation_length = 0.08
-vim.g.neovide_cursor_short_animation_length = 0.02
-vim.g.neovide_cursor_trail_size = 0.5
-vim.g.neovide_cursor_vfx_mode = ''
-vim.g.neovide_position_animation_length = 0.08
-vim.g.neovide_scroll_animation_length = 0.12
-vim.g.neovide_hide_mouse_when_typing = true
-vim.g.neovide_remember_window_size = true
-vim.g.neovide_floating_shadow = true
 vim.o.title = true
-
--- IME：只在插入和 / ? 搜索里打开输入法，普通模式不接收 IME 输入，
--- 中文输入法挂在中文状态时就不会吞掉 normal 模式的按键。
--- （只影响 Neovide 的 text-input，不动 fcitx5 自己的状态。）
-local ime_group = vim.api.nvim_create_augroup('neovide_ime', { clear = true })
-vim.api.nvim_create_autocmd({ 'InsertEnter', 'CmdlineEnter' }, {
-  group = ime_group,
-  pattern = { '*', '[\\/?]' },
-  callback = function() vim.g.neovide_input_ime = true end,
-})
-vim.api.nvim_create_autocmd({ 'InsertLeave', 'CmdlineLeave' }, {
-  group = ime_group,
-  pattern = { '*', '[\\/?]' },
-  callback = function() vim.g.neovide_input_ime = false end,
-})
-vim.g.neovide_input_ime = false
-
--- 让 Neovide 自己画 IME 候选与预编辑文本（否则预编辑会以奇怪的位置出现）。
--- 插件本体在 lua/plugins/neov-ime.lua，由 lazy.nvim 管（只在 GUI 里加载）。

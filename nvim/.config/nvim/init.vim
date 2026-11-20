@@ -8,8 +8,6 @@ nnoremap k gk
 noremap <leader><tab> gt
 nnoremap <c-w>" <c-w>s
 nnoremap <c-w>% <c-w>v
-"nnoremap <leader><leader> <c-w><c-w>
-"nnoremap <leader>b :ls<cr>:b<space>
 
 augroup EscInTerm
   autocmd TermOpen * tnoremap <buffer> <Esc><Esc> <c-\><c-n>
@@ -155,7 +153,7 @@ vim.keymap.set('n', '<leader>d', function()
       rest = rest + 1
     end
   end
-  vim.cmd(rest == 0 and 'quitall' or 'bdelete')
+  vim.cmd(rest == 0 and 'quitall' or 'close')
 end, { desc = 'Close Diffview, or quit Neovim when last buffer' })
 EOF
 " 未保存时 :q / :qa 弹原生确认框（a=全部保存, d=全部丢弃），切走的 buffer 保留在内存里

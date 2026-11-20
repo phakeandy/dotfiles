@@ -40,7 +40,7 @@ keybind = alt+shift+o=esc:O
 # theme = Gruvbox Dark
 # theme = TokyoNight
 # theme = TokyoNight Day
-theme = Catppuccin Latte
+theme = Catppuccin Mocha
 #foreground=#ffffff
 #background=#000000
 #background-opacity=1.0
