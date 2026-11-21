@@ -3,6 +3,7 @@
   "better-escape.nvim": { "branch": "master", "commit": "3f4bc0b326606264ff75967f59091b5ddada0554" },
   "blink.cmp": { "branch": "main", "commit": "78336bc89ee5365633bcf754d93df01678b5c08f" },
   "catppuccin": { "branch": "main", "commit": "edefef779ab08ce1a4a404713e3012b0d202bd35" },
+  "cjk-pairs.nvim": { "branch": "main", "commit": "541819d5d08ff497d0fca9aeaafb4fdc4ac8d1f4" },
   "conform.nvim": { "branch": "master", "commit": "016802de402556da54c36bd7359b441266b01cdd" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "fern.vim": { "branch": "main", "commit": "eaf8395c355bbc1e09d273b59affc92ede28dadd" },
